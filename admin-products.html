@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin – Products</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <script src="/js/authGuard.js"></script>
+
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">
+          <i class="bi bi-box-seam"></i> Product Management
+        </h3>
+
+        <div class="btn-group">
+          <a href="admin-orders.html" class="btn btn-outline-dark">
+            <i class="bi bi-receipt"></i> Orders
+          </a>
+          <a href="admin-reports.html" class="btn btn-outline-dark">
+            <i class="bi bi-graph-up"></i> Reports
+          </a>
+        </div>
+      </div>
+
+      <!-- ADD PRODUCT FORM -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+          <i class="bi bi-plus-circle"></i> Add / Edit Product
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col">
+              <input id="name" class="form-control" placeholder="Name" />
+            </div>
+            <div class="col">
+              <input
+                id="price"
+                type="number"
+                class="form-control"
+                placeholder="Price"
+              />
+            </div>
+            <div class="col">
+              <input
+                id="category"
+                class="form-control"
+                placeholder="Category"
+              />
+            </div>
+          </div>
+          <textarea
+            id="description"
+            class="form-control mt-2"
+            placeholder="Description"
+          ></textarea>
+          <input id="image" type="file" class="form-control mt-2" />
+
+          <input
+            id="stock"
+            type="number"
+            class="form-control mt-2"
+            placeholder="Stock"
+          />
+
+          <button class="btn btn-dark mt-3 w-100" onclick="addProduct()">
+            Add Product
+          </button>
+        </div>
+      </div>
+
+      <!-- PRODUCT TABLE -->
+      <table class="table table-hover align-middle bg-white shadow-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productTable"></tbody>
+      </table>
+    </div>
+
+    <script src="js/admin-products.js"></script>
+  </body>
+</html>
