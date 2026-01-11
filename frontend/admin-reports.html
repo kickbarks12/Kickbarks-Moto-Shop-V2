@@ -15,65 +15,68 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body class="bg-light">
-    <script src="/js/authGuard.js"></script>
+    <div class="page">
+      <script src="/js/authGuard.js"></script>
 
-    <div class="container py-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="bi bi-graph-up"></i> Sales Dashboard</h3>
+      <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3><i class="bi bi-graph-up"></i> Sales Dashboard</h3>
 
-        <div class="btn-group">
-          <a href="admin-products.html" class="btn btn-outline-dark">
-            <i class="bi bi-box-seam"></i> Products
-          </a>
+          <div class="btn-group">
+            <a href="admin-products.html" class="btn btn-outline-dark">
+              <i class="bi bi-box-seam"></i> Products
+            </a>
 
-          <a href="admin-orders.html" class="btn btn-outline-dark">
-            <i class="bi bi-receipt"></i> Orders
-          </a>
+            <a href="admin-orders.html" class="btn btn-outline-dark">
+              <i class="bi bi-receipt"></i> Orders
+            </a>
 
-          <a href="admin-reports.html" class="btn btn-outline-dark">
-            <i class="bi bi-graph-up"></i> Reports
-          </a>
-        </div>
-      </div>
-
-      <!-- SUMMARY -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="card shadow-sm p-4 text-center">
-            <h5>Total Revenue</h5>
-            <h2 id="totalRevenue">₱0</h2>
+            <a href="admin-reports.html" class="btn btn-outline-dark">
+              <i class="bi bi-graph-up"></i> Reports
+            </a>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card shadow-sm p-4 text-center">
-            <h5>Total Orders</h5>
-            <h2 id="totalOrders">0</h2>
-          </div>
-        </div>
-      </div>
 
-      <!-- DAILY SALES -->
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card shadow-sm mb-4">
-            <div class="card-header">📅 Daily Sales</div>
-            <div class="card-body">
-              <canvas id="dailyChart"></canvas>
+        <!-- SUMMARY -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card shadow-sm p-4 text-center">
+              <h5>Total Revenue</h5>
+              <h2 id="totalRevenue">₱0</h2>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card shadow-sm p-4 text-center">
+              <h5>Total Orders</h5>
+              <h2 id="totalOrders">0</h2>
             </div>
           </div>
         </div>
 
-        <div class="col-md-6">
-          <div class="card shadow-sm mb-4">
-            <div class="card-header">🏆 Top Products</div>
-            <div class="card-body">
-              <canvas id="topProductsChart"></canvas>
+        <!-- DAILY SALES -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+              <div class="card-header">📅 Daily Sales</div>
+              <div class="card-body">
+                <canvas id="dailyChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+              <div class="card-header">🏆 Top Products</div>
+              <div class="card-body">
+                <canvas id="topProductsChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <script src="js/admin-reports.js"></script>
+      <script src="../frontend/js/page-transition.js"></script>
     </div>
-
-    <script src="js/admin-reports.js"></script>
   </body>
 </html>
