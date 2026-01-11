@@ -2,10 +2,15 @@ html {
   scroll-behavior: smooth;
 }
 /* ===== Global 3D Background ===== */
-body {
-  background: url("../images/") no-repeat center center fixed;
-  background-size: cover;
+html, body {
+  height: 100%;
 }
+
+body {
+  background: url("../images/bg.png.png") no-repeat center center fixed !important;
+  background-size: cover !important;
+}
+
 
 
 body {
@@ -152,10 +157,6 @@ body {
   }
 }
 
-/* Softer background */
-body {
-  background: #f4f6f9;
-}
 
 /* Smooth buttons */
 .btn {
@@ -675,4 +676,111 @@ body {
   .brand-quote {
     font-size: 1.3rem;
   }
+}
+
+.page {
+  background: transparent;
+}
+
+/* ===== Global White Text for 3D Background ===== */
+body, 
+.page, 
+.container, 
+section, 
+p, 
+h1, h2, h3, h4, h5, h6,
+span, 
+label,
+a {
+  color: white !important;
+}
+
+.btn {
+  color: white !important;
+}
+
+h1, h2, h3, h4, h5 {
+  text-shadow: 0 0 10px rgba(0,0,0,0.7);
+}
+
+p, span {
+  text-shadow: 0 0 6px rgba(0,0,0,0.6);
+}
+
+/* ===== FORCE WHITE TEXT EVERYWHERE ===== */
+*,
+*::before,
+*::after {
+  color: white !important;
+}
+
+.text-dark,
+.text-muted,
+.text-secondary,
+.text-body,
+.lead {
+  color: white !important;
+}
+
+a {
+  color: white !important;
+}
+input,
+textarea,
+select {
+  color: black !important;
+  background: white !important;
+}
+
+.btn-dark {
+  background: black !important;
+  color: white !important;
+}
+
+/* ===== Checkout Summary Card ===== */
+.checkout-summary {
+  background: rgba(245,245,240,0.95); /* dirty white */
+  color: #111 !important;
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.checkout-summary span {
+  color: #111 !important;
+}
+
+.checkout-summary hr {
+  border-color: rgba(0,0,0,0.15);
+}
+
+/* ===== Free Shipping Voucher Popup ===== */
+.voucher-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.voucher-box {
+  background: rgba(245,245,240,0.95);
+  padding: 25px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 350px;
+  text-align: center;
+  color: #111;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.voucher-box h4 {
+  color: #111;
+}
+
+.voucher-box p {
+  color: #333;
 }

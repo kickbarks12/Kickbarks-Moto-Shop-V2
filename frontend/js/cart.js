@@ -1,8 +1,14 @@
-let promoDiscount = 0;
+let promoDiscount = Number(localStorage.getItem("promoDiscount")) || 0;
+let appliedVoucher = localStorage.getItem("appliedVoucher") || null;
+let myVouchers = JSON.parse(localStorage.getItem("myVouchers")) || [];
+
+
+
 const SHIPPING_FEE = 150;
 
 document.addEventListener("DOMContentLoaded", () => {
   renderCart();
+  renderVoucherWallet();
 });
 
 function renderCart() {
@@ -11,6 +17,7 @@ function renderCart() {
   const discountEl = document.getElementById("cart-discount");
   const shippingEl = document.getElementById("cart-shipping");
   const totalEl = document.getElementById("cart-total");
+  
 
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -71,16 +78,30 @@ row.className = "row align-items-center mb-3 cart-row";
   });
 
   const discount = (subtotal * promoDiscount) / 100;
-  const total = subtotal - discount + SHIPPING_FEE;
+const total = subtotal - discount + SHIPPING_FEE;
 
-  subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
-  discountEl.textContent = `₱${discount.toFixed(2)}`;
-  shippingEl.textContent = `₱${SHIPPING_FEE.toFixed(2)}`;
-  totalEl.textContent = `₱${total.toFixed(2)}`;
+/* ===== Voucher display ===== */
+const voucherRow = document.getElementById("voucher-row");
+
+if (appliedVoucher && promoDiscount > 0) {
+  voucherRow.classList.remove("d-none");
+  voucherRow.querySelector(".voucher-code").textContent = appliedVoucher;
+  voucherRow.querySelector(".voucher-amount").textContent = `-₱${discount.toFixed(2)}`;
+} else {
+  voucherRow.classList.add("d-none");
+}
+
+/* ===== Totals ===== */
+subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
+discountEl.textContent = `₱${discount.toFixed(2)}`;
+shippingEl.textContent = `₱${SHIPPING_FEE.toFixed(2)}`;
+totalEl.textContent = `₱${total.toFixed(2)}`;
+
 }
 
 function applyPromo() {
-  const code = document.getElementById("promoCode").value;
+  const code = document.getElementById("promoCode").value.trim();
+  
 
   fetch("/api/promo/validate", {
     method: "POST",
@@ -88,16 +109,30 @@ function applyPromo() {
     body: JSON.stringify({ code })
   })
     .then(res => {
-      if (!res.ok) throw new Error("Invalid promo");
+      if (!res.ok) throw new Error("Invalid");
       return res.json();
     })
     .then(data => {
-      promoDiscount = data.discountPercent;
-      alert(`Promo applied! ${promoDiscount}% discount`);
-      renderCart();
-    })
-    .catch(() => alert("Invalid promo code"));
+  promoDiscount = data.discountPercent;
+  appliedVoucher = code.toUpperCase();
+
+  if (!myVouchers.includes(appliedVoucher)) {
+    myVouchers.push(appliedVoucher);
+    localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
+  }
+
+  localStorage.setItem("appliedVoucher", appliedVoucher);
+  localStorage.setItem("promoDiscount", promoDiscount);
+
+  alert(`🎉 Voucher ${appliedVoucher} applied!`);
+  renderCart();
+  renderVoucherWallet();
+})
+
+
+    .catch(() => alert("Invalid or expired promo code"));
 }
+
 
 function checkout() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -145,8 +180,98 @@ const address = document.getElementById("cust-address").value;
     })
     .then(() => {
       localStorage.removeItem("cart");
+localStorage.removeItem("promoDiscount");
+
       alert("Order placed successfully!");
       window.location.href = "/shop.html";
     })
     .catch(() => alert("Checkout failed"));
+}
+
+let voucherCountdown;
+
+function showFreeShipOffer() {
+  let time = 5;
+  document.getElementById("voucherTimer").textContent = time;
+  document.getElementById("freeShipPopup").classList.remove("d-none");
+
+  voucherCountdown = setInterval(() => {
+    time--;
+    document.getElementById("voucherTimer").textContent = time;
+
+    if (time <= 0) {
+      clearInterval(voucherCountdown);
+      closeVoucherPopup();
+      checkout(); // continue checkout normally
+    }
+  }, 1000);
+}
+
+function closeVoucherPopup() {
+  document.getElementById("freeShipPopup").classList.add("d-none");
+}
+
+function claimFreeShipping() {
+  clearInterval(voucherCountdown);
+  document.getElementById("freeShipPopup").classList.add("d-none");
+
+  fetch("/api/promo/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: "FREEDEL" })
+  })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(data => {
+      if (!data.freeShipping) {
+        alert("This voucher does not give free shipping");
+        return;
+      }
+
+      window.freeShipping = true;
+      appliedVoucher = "FREEDEL";
+
+      if (!myVouchers.includes("FREEDEL")) {
+        myVouchers.push("FREEDEL");
+        localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
+      }
+
+      alert("🎉 Free shipping applied!");
+      renderCart();
+      renderVoucherWallet();
+    })
+    .catch(() => alert("Voucher not available"));
+}
+
+
+function renderVoucherWallet() {
+  const wallet = document.getElementById("voucherWallet");
+
+  if (!wallet) return;
+
+  if (myVouchers.length === 0) {
+    wallet.innerHTML = "<p class='text-muted'>No vouchers yet</p>";
+    return;
+  }
+
+  wallet.innerHTML = "";
+
+  myVouchers.forEach(code => {
+    const card = document.createElement("div");
+    card.className = "voucher-card";
+
+    card.innerHTML = `
+      <strong>${code}</strong>
+      <button class="btn btn-sm btn-dark mt-2">Use</button>
+    `;
+
+    card.querySelector("button").onclick = () => {
+      document.getElementById("promoCode").value = code;
+      applyPromo();
+    };
+
+    wallet.appendChild(card);
+  });
 }

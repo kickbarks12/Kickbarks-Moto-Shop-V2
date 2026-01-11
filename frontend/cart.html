@@ -22,7 +22,7 @@
       <div id="navbar"></div>
 
       <!-- PAGE TITLE -->
-      <section class="py-5 bg-light">
+      <section class="py-5 bg-transparent">
         <div class="container text-center">
           <h1 class="fw-bold">Your Cart</h1>
           <p class="text-muted">Review items before checkout</p>
@@ -36,31 +36,36 @@
             <!-- Cart items will be loaded here -->
           </div>
 
-          <hr />
+          <div class="checkout-summary">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <span id="cart-subtotal">₱0</span>
+            </div>
 
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5>Subtotal:</h5>
-            <h5 id="cart-subtotal">₱0</h5>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Discount</span>
+              <span id="cart-discount">₱0</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2">
+              <span>Shipping</span>
+              <span id="cart-shipping">₱150</span>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between fw-bold fs-5">
+              <span>Total</span>
+              <span id="cart-total">₱0</span>
+            </div>
+            <div
+              id="voucher-row"
+              class="d-flex justify-content-between mb-2 d-none"
+            >
+              <span>Voucher (<span class="voucher-code"></span>)</span>
+              <span class="voucher-amount"></span>
+            </div>
           </div>
-
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5>Discount:</h5>
-            <h5 id="cart-discount">₱0</h5>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5>Shipping:</h5>
-            <h5 id="cart-shipping">₱150</h5>
-          </div>
-
-          <div
-            class="d-flex justify-content-between align-items-center fw-bold"
-          >
-            <h5>Total:</h5>
-            <h5 id="cart-total">₱0</h5>
-          </div>
-
-          <hr />
 
           <h5 class="mt-3">Customer Information</h5>
 
@@ -91,6 +96,12 @@
             </div>
           </div>
 
+          <h5 class="mt-4">🎟 My Vouchers</h5>
+
+          <div id="voucherWallet" class="voucher-wallet mb-3">
+            <p class="text-muted">No vouchers yet</p>
+          </div>
+
           <div class="input-group mt-3">
             <input
               id="promoCode"
@@ -103,12 +114,24 @@
           </div>
 
           <div class="text-end mt-4">
-            <button class="btn btn-dark" onclick="checkout()">
+            <button class="btn btn-dark" onclick="showFreeShipOffer()">
               Proceed to Checkout
             </button>
           </div>
         </div>
       </section>
+      <div id="freeShipPopup" class="voucher-popup d-none">
+        <div class="voucher-box">
+          <h4>🎁 Free Shipping Available!</h4>
+          <p>Claim your free shipping voucher before time runs out.</p>
+          <p class="countdown">
+            ⏳ <span id="voucherTimer">5</span> seconds left
+          </p>
+          <button class="btn btn-dark w-100 mt-2" onclick="claimFreeShipping()">
+            Claim Now
+          </button>
+        </div>
+      </div>
 
       <div id="footer"></div>
 
