@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Orders | Kickbarks Moto Shop</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body class="d-flex flex-column min-vh-100">
+    <script src="/js/authGuard.js"></script>
+
+    <div id="navbar"></div>
+
+    <!-- PAGE TITLE -->
+    <section class="py-4 bg-light border-bottom">
+      <div class="container">
+        <div
+          class="d-flex justify-content-between align-items-center mb-3 admin-header"
+        >
+          <div>
+            <h1 class="fw-bold mb-0">Admin Orders</h1>
+            <p class="text-muted mb-0">View all customer orders</p>
+          </div>
+
+          <button onclick="logoutAdmin()" class="btn btn-outline-danger btn-sm">
+            Logout
+          </button>
+        </div>
+
+        <div class="btn-group admin-nav-buttons">
+          <a href="admin-products.html" class="btn btn-outline-dark">
+            <i class="bi bi-box-seam"></i> Products
+          </a>
+
+          <a href="admin-orders.html" class="btn btn-outline-dark">
+            <i class="bi bi-receipt"></i> Orders
+          </a>
+
+          <a href="admin-reports.html" class="btn btn-outline-dark">
+            <i class="bi bi-graph-up"></i> Reports
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS TABLE -->
+    <section class="py-5">
+      <div class="container">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Ref #</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table">
+              <!-- Orders will load here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div id="footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/admin-orders.js"></script>
+  </body>
+</html>
