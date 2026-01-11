@@ -32,7 +32,8 @@ function renderCart() {
     subtotal += rowTotal;
 
     const row = document.createElement("div");
-    row.className = "row align-items-center mb-3";
+row.className = "row align-items-center mb-3 cart-row";
+
 
     row.innerHTML = `
       <div class="col-md-4"><strong>${item.name}</strong></div>

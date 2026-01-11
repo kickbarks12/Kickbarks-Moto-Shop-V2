@@ -12,6 +12,10 @@
   </head>
 
   <body class="bg-light">
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+    </div>
+
     <div class="page">
       <div class="container py-5">
         <!-- ===== ADMIN LOGIN ===== -->
@@ -169,6 +173,11 @@
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
       <script src="/admin/admin.js"></script>
+      <script>
+        window.addEventListener("load", () => {
+          document.getElementById("loader").classList.add("hidden");
+        });
+      </script>
     </div>
   </body>
 </html>

@@ -13,6 +13,10 @@
     />
   </head>
   <body class="bg-light">
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+    </div>
+
     <div class="page">
       <script src="/js/authGuard.js"></script>
 
@@ -95,6 +99,11 @@
 
       <script src="js/admin-products.js"></script>
       <script src="../frontend/js/page-transition.js"></script>
+      <script>
+        window.addEventListener("load", () => {
+          document.getElementById("loader").classList.add("hidden");
+        });
+      </script>
     </div>
   </body>
 </html>

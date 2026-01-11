@@ -1,5 +1,9 @@
 let allProducts = [];
 
+const urlParams = new URLSearchParams(window.location.search);
+const brandFilter = urlParams.get("brand");
+
+
 document.addEventListener("DOMContentLoaded", () => {
   fetch("/api/products")
     .then(res => res.json())
@@ -35,6 +39,12 @@ function renderProducts(products) {
 
     col.querySelector(".add-to-cart").onclick = () => addToCart(product);
     productList.appendChild(col);
+    let filteredProducts = products;
+
+if (brandFilter) {
+  filteredProducts = products.filter(p => p.brand === brandFilter);
+}
+
   });
 }
 
