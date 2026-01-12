@@ -1,6 +1,7 @@
 let promoDiscount = Number(localStorage.getItem("promoDiscount")) || 0;
 let appliedVoucher = localStorage.getItem("appliedVoucher") || null;
 let myVouchers = JSON.parse(localStorage.getItem("myVouchers")) || [];
+let freeShipping = localStorage.getItem("freeShipping") === "true";
 
 
 
@@ -9,7 +10,9 @@ const SHIPPING_FEE = 150;
 document.addEventListener("DOMContentLoaded", () => {
   renderCart();
   renderVoucherWallet();
+  showDailyVoucherPopup();
 });
+
 
 function renderCart() {
   const cartItemsContainer = document.getElementById("cart-items");
@@ -78,7 +81,10 @@ row.className = "row align-items-center mb-3 cart-row";
   });
 
   const discount = (subtotal * promoDiscount) / 100;
-const total = subtotal - discount + SHIPPING_FEE;
+
+// 🚚 Shipping logic
+const shippingCost = freeShipping ? 0 : SHIPPING_FEE;
+const total = subtotal - discount + shippingCost;
 
 /* ===== Voucher display ===== */
 const voucherRow = document.getElementById("voucher-row");
@@ -94,8 +100,9 @@ if (appliedVoucher && promoDiscount > 0) {
 /* ===== Totals ===== */
 subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
 discountEl.textContent = `₱${discount.toFixed(2)}`;
-shippingEl.textContent = `₱${SHIPPING_FEE.toFixed(2)}`;
+shippingEl.textContent = freeShipping ? "₱0 (FREE)" : `₱${SHIPPING_FEE.toFixed(2)}`;
 totalEl.textContent = `₱${total.toFixed(2)}`;
+
 
 }
 
@@ -170,7 +177,7 @@ const address = document.getElementById("cust-address").value;
       })),
       subtotal,
       discount,
-      shipping: SHIPPING_FEE,
+     shipping: shippingCost,
       total
     })
   })
@@ -181,7 +188,7 @@ const address = document.getElementById("cust-address").value;
     .then(() => {
       localStorage.removeItem("cart");
 localStorage.removeItem("promoDiscount");
-
+localStorage.removeItem("freeShipping");
       alert("Order placed successfully!");
       window.location.href = "/shop.html";
     })
@@ -225,23 +232,30 @@ function claimFreeShipping() {
       return res.json();
     })
     .then(data => {
-      if (!data.freeShipping) {
-        alert("This voucher does not give free shipping");
-        return;
-      }
+  if (!data.freeShipping) {
+    alert("This voucher does not give free shipping");
+    return;
+  }
 
-      window.freeShipping = true;
-      appliedVoucher = "FREEDEL";
+  freeShipping = true;
+localStorage.setItem("freeShipping", "true");
 
-      if (!myVouchers.includes("FREEDEL")) {
-        myVouchers.push("FREEDEL");
-        localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
-      }
+  appliedVoucher = "FREEDEL";
 
-      alert("🎉 Free shipping applied!");
-      renderCart();
-      renderVoucherWallet();
-    })
+  // 🔐 Mark as claimed today
+  localStorage.setItem("lastFreeDelClaim", new Date().toDateString());
+
+  // 💼 Save in wallet
+  if (!myVouchers.includes("FREEDEL")) {
+    myVouchers.push("FREEDEL");
+    localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
+  }
+
+  alert("🎉 Free shipping voucher saved to your wallet!");
+  renderCart();
+  renderVoucherWallet();
+})
+
     .catch(() => alert("Voucher not available"));
 }
 
@@ -274,4 +288,13 @@ function renderVoucherWallet() {
 
     wallet.appendChild(card);
   });
+}
+
+function showDailyVoucherPopup() {
+  const lastClaim = localStorage.getItem("lastFreeDelClaim");
+  const today = new Date().toDateString();
+
+  if (lastClaim === today) return; // already claimed today
+
+  document.getElementById("freeShipPopup").classList.remove("d-none");
 }
