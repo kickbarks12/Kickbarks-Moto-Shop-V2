@@ -28,30 +28,6 @@
         <span onclick="closePromo()" class="promo-close">&times;</span>
       </div>
 
-      <!-- NEW ARRIVAL MODAL -->
-      <div class="modal fade" id="newArrivalModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header border-0">
-              <h5 class="modal-title">📦 New Arrivals</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div class="modal-body text-center">
-              <p class="fs-5">
-                We just added new motorcycle parts & accessories!
-              </p>
-              <button class="btn btn-dark w-100" data-bs-dismiss="modal">
-                Browse New Items
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- FREE SHIPPING TOAST -->
       <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="shippingToast" class="toast" data-bs-delay="6000">
@@ -102,111 +78,193 @@
 
             <div class="col-md-6 text-center">
               <img
-                src="images/Motorcycle.png"
+                src="./images/Motorcycle v1.png"
                 class="img-fluid"
                 alt="Motorcycle"
               />
             </div>
           </div>
         </div>
-        <!-- HERO CAROUSEL -->
-        <section>
-          <div class="container py-5 bg-transparent">
-            <div class="row justify-content-center">
-              <div class="col-md-10 col-lg-8">
-                <div class="carousel-glass">
-                  <div
-                    id="heroCarousel"
-                    class="carousel slide carousel-small"
-                    data-bs-ride="carousel"
-                  >
-                    <div class="carousel-inner">
-                      <div class="carousel-item active">
-                        <img
-                          src="images/cworksbell.png"
-                          class="d-block w-100"
-                          alt="Slide 1"
-                        />
-                      </div>
+      </section>
 
-                      <div class="carousel-item">
-                        <img
-                          src="images/jvtcenterspring.png"
-                          class="d-block w-100"
-                          alt="Slide 2"
-                        />
-                      </div>
+      <!-- ================= FLASH SALE ================= -->
+      <section class="py-5">
+        <div class="container">
+          <div class="flash-sale-glass">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 class="fw-bold m-0">⚡ Flash Sale</h3>
+              <div class="flash-timer">
+                Ends in: <span id="flashHours">02</span>:
+                <span id="flashMinutes">15</span>:
+                <span id="flashSeconds">45</span>
+              </div>
+            </div>
 
-                      <div class="carousel-item">
-                        <img
-                          src="images/rcbbrakelever.png"
-                          class="d-block w-100"
-                          alt="Slide 3"
-                        />
-                      </div>
+            <div class="row g-4">
+              <!-- Product 1 -->
+              <div class="col-6 col-md-3">
+                <div class="flash-card">
+                  <span class="flash-badge">-30%</span>
+                  <img src="images/cworksbell.png" class="img-fluid" />
+                  <h6>CWORKS Clutch Bell</h6>
+                  <div class="price">
+                    <span class="old">₱1,699</span>
+                    <span class="new">₱1,199</span>
+                  </div>
+                  <a href="shop.html" class="btn btn-dark w-100">Buy Now</a>
+                </div>
+              </div>
+
+              <!-- Product 2 -->
+              <div class="col-6 col-md-3">
+                <div class="flash-card">
+                  <span class="flash-badge">-25%</span>
+                  <img src="images/jvtcenterspring.png" class="img-fluid" />
+                  <h6>JVT Center Spring</h6>
+                  <div class="price">
+                    <span class="old">₱1,200</span>
+                    <span class="new">₱899</span>
+                  </div>
+                  <a href="shop.html" class="btn btn-dark w-100">Buy Now</a>
+                </div>
+              </div>
+
+              <!-- Product 3 -->
+              <div class="col-6 col-md-3">
+                <div class="flash-card">
+                  <span class="flash-badge">-20%</span>
+                  <img src="images/rcbbrakelever.png" class="img-fluid" />
+                  <h6>RCB Brake Lever</h6>
+                  <div class="price">
+                    <span class="old">₱1,500</span>
+                    <span class="new">₱1,200</span>
+                  </div>
+                  <a href="shop.html" class="btn btn-dark w-100">Buy Now</a>
+                </div>
+              </div>
+
+              <!-- Product 4 -->
+              <div class="col-6 col-md-3">
+                <div class="flash-card">
+                  <span class="flash-badge">-15%</span>
+                  <img src="images/rs8shock.png" class="img-fluid" />
+                  <h6>RS8 Shock Absorber</h6>
+                  <div class="price">
+                    <span class="old">₱3,500</span>
+                    <span class="new">₱2,999</span>
+                  </div>
+                  <a href="shop.html" class="btn btn-dark w-100">Buy Now</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== GLASS HERO CAROUSEL ===== -->
+      <section class="py-5">
+        <div class="container">
+          <div class="glass-carousel-wrapper">
+            <div
+              id="glassCarousel"
+              class="carousel slide"
+              data-bs-ride="carousel"
+            >
+              <div class="carousel-inner">
+                <!-- Slide 1 -->
+                <div class="carousel-item active">
+                  <div class="glass-slide">
+                    <div class="glass-text">
+                      <h1>CWORKS Clutch Bell</h1>
+                      <h4>
+                        High performance clutch bell with groove for smoother
+                        and cooler rides.
+                      </h4>
                     </div>
+                    <div class="glass-image">
+                      <img src="images/cworksbell.png" alt="Cworks Clutch" />
+                    </div>
+                  </div>
+                </div>
 
-                    <button
-                      class="carousel-control-prev"
-                      type="button"
-                      data-bs-target="#heroCarousel"
-                      data-bs-slide="prev"
-                    >
-                      <span class="carousel-control-prev-icon"></span>
-                    </button>
+                <!-- Slide 2 -->
+                <div class="carousel-item">
+                  <div class="glass-slide">
+                    <div class="glass-text">
+                      <h1>JVT Center Spring</h1>
+                      <h4>
+                        Boost acceleration and torque with premium center
+                        springs.
+                      </h4>
+                    </div>
+                    <div class="glass-image">
+                      <img src="images/jvtcenterspring.png" alt="JVT Spring" />
+                    </div>
+                  </div>
+                </div>
 
-                    <button
-                      class="carousel-control-next"
-                      type="button"
-                      data-bs-target="#heroCarousel"
-                      data-bs-slide="next"
-                    >
-                      <span class="carousel-control-next-icon"></span>
-                    </button>
+                <!-- Slide 3 -->
+                <div class="carousel-item">
+                  <div class="glass-slide">
+                    <div class="glass-text">
+                      <h1>RCB Brake Lever</h1>
+                      <h4>
+                        Premium CNC aluminum brake levers for style and safety.
+                      </h4>
+                    </div>
+                    <div class="glass-image">
+                      <img src="images/rcbbrakelever.png" alt="RCB Lever" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </section>
 
       <!-- BRANDS -->
       <section class="py-5">
-        <div class="container">
-          <h3 class="text-center fw-bold mb-4">Shop by Brand</h3>
+        <div class="container brand-glass-wrapper">
+          <div class="brand-glass">
+            <h3 class="text-center fw-bold mb-4">Shop by Brand</h3>
 
-          <div class="row g-4 text-center">
-            <div class="col-6 col-md-3">
-              <a href="shop.html?brand=Yamaha" class="brand-card">
-                <img src="images/brands/cworkslogo.png" class="img-fluid" />
-                <p>Yamaha</p>
-              </a>
-            </div>
+            <div class="row g-4 text-center">
+              <div class="col-6 col-md-3">
+                <a href="shop.html?brand=Yamaha" class="brand-card glass-brand">
+                  <img src="images/brands/cworkslogo.png" class="img-fluid" />
+                  <p>Yamaha</p>
+                </a>
+              </div>
 
-            <div class="col-6 col-md-3">
-              <a href="shop.html?brand=Honda" class="brand-card">
-                <img src="images/brands/jvtlogo.png" class="img-fluid" />
-                <p>Honda</p>
-              </a>
-            </div>
+              <div class="col-6 col-md-3">
+                <a href="shop.html?brand=Honda" class="brand-card glass-brand">
+                  <img src="images/brands/jvtlogo.png" class="img-fluid" />
+                  <p>Honda</p>
+                </a>
+              </div>
 
-            <div class="col-6 col-md-3">
-              <a href="shop.html?brand=Suzuki" class="brand-card">
-                <img src="images/brands/rcb.png" class="img-fluid" />
-                <p>Suzuki</p>
-              </a>
-            </div>
+              <div class="col-6 col-md-3">
+                <a href="shop.html?brand=Suzuki" class="brand-card glass-brand">
+                  <img src="images/brands/rcb.png" class="img-fluid" />
+                  <p>Suzuki</p>
+                </a>
+              </div>
 
-            <div class="col-6 col-md-3">
-              <a href="shop.html?brand=Kawasaki" class="brand-card">
-                <img src="images/brands/rs8.png" class="img-fluid" />
-                <p>Kawasaki</p>
-              </a>
+              <div class="col-6 col-md-3">
+                <a
+                  href="shop.html?brand=Kawasaki"
+                  class="brand-card glass-brand"
+                >
+                  <img src="images/brands/rs8.png" class="img-fluid" />
+                  <p>Kawasaki</p>
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </section>
+
       <!-- BRAND QUOTE -->
       <section class="brand-quote-section py-5 bg-transparent">
         <div class="container text-center">
@@ -225,6 +283,7 @@
       <script src="js/layout.js"></script>
       <script src="js/page-transition.js"></script>
       <script src="js/promo.js"></script>
+      <script src="js/flash-sale.js"></script>
 
       <script>
         window.addEventListener("load", () => {

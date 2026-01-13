@@ -917,3 +917,303 @@ h1, h2, h3, h4, h5, p, span {
   align-items: center;
 }
 
+/* ===============================
+   GLASS HERO CAROUSEL
+================================ */
+
+.glass-carousel-wrapper {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* Slide layout */
+.glass-slide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 320px;
+  gap: 40px;
+}
+
+/* Text side */
+.glass-text {
+  max-width: 50%;
+}
+
+.glass-text h2 {
+  font-size: 2.2rem;
+  color: #111 !important;
+  text-shadow: none;
+}
+
+.glass-text p {
+  font-size: 1.1rem;
+  color: #333 !important;
+  margin: 15px 0;
+  text-shadow: none;
+}
+
+/* Image side */
+.glass-image {
+  max-width: 45%;
+  text-align: center;
+}
+
+.glass-image img {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 40px rgba(0,0,0,0.3));
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .glass-slide {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .glass-text,
+  .glass-image {
+    max-width: 100%;
+  }
+
+  .glass-text h2 {
+    font-size: 1.6rem;
+  }
+}
+/* ===== Force BLACK text inside glass carousel ===== */
+.glass-carousel-wrapper,
+.glass-carousel-wrapper * {
+  color: #111 !important;
+  text-shadow: none !important;
+}
+/* ========================= */
+/*  Brand Glass Section      */
+/* ========================= */
+
+.brand-glass {
+  background: rgba(255,255,255,0.78);
+  border-radius: 20px;
+  padding: 30px 25px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* Force black text only inside brand section */
+.brand-glass,
+.brand-glass * {
+  color: #111 !important;
+  text-shadow: none !important;
+}
+
+/* Brand cards inside glass */
+.glass-brand {
+  background: rgba(255,255,255,0.9);
+  border-radius: 14px;
+  padding: 18px 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.glass-brand:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+/* Logo sizing */
+.glass-brand img {
+  max-height: 70px;
+  margin-bottom: 10px;
+}
+
+/* Brand name */
+.glass-brand p {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+/* ================= FLASH SALE ================= */
+
+.flash-sale-section * {
+  color: white !important;
+}
+
+/* Glass card */
+.flash-sale-card {
+  background: rgba(0,0,0,0.7);
+  border-radius: 18px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 18px;
+  transition: 0.3s ease;
+}
+
+.flash-sale-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 35px 80px rgba(0,0,0,0.85);
+}
+
+/* Images */
+.flash-sale-card img {
+  max-height: 160px;
+  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.9));
+}
+
+/* Discount badge */
+.flash-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: red;
+  color: white !important;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* Prices */
+.flash-price .old {
+  text-decoration: line-through;
+  color: #aaa !important;
+  margin-right: 8px;
+}
+
+.flash-price .new {
+  color: #00ff99 !important;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Timer */
+.flash-time span {
+  background: rgba(0,0,0,0.85);
+  color: #00ff99 !important;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 0 20px rgba(0,255,150,0.4);
+}
+
+/* CTA button */
+.flash-sale-card .btn {
+  background: #00ff99 !important;
+  color: black !important;
+  border-radius: 30px;
+  font-weight: 700;
+  box-shadow: 0 0 25px rgba(0,255,150,0.7);
+}
+
+.flash-sale-card .btn:hover {
+  background: #00e68a !important;
+  box-shadow: 0 0 40px rgba(0,255,150,1);
+}
+
+/* ================= FIX FLASH SALE ================= */
+
+.flash-sale-glass {
+  background: rgba(255,255,255,0.88);
+  border-radius: 28px;
+  padding: 40px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.35);
+}
+
+/* Kill global white text */
+.flash-sale-glass,
+.flash-sale-glass * {
+  color: #111 !important;
+  text-shadow: none !important;
+}
+
+/* Title */
+.flash-sale-glass h3 {
+  font-weight: 900;
+  font-size: 28px;
+}
+
+/* Timer */
+.flash-timer {
+  background: #111;
+  color: white !important;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.flash-timer span {
+  color: #00ff99 !important;
+}
+
+/* Cards */
+.flash-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  text-align: center;
+  position: relative;
+  transition: 0.4s ease;
+}
+
+.flash-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 35px 90px rgba(0,0,0,0.45);
+}
+
+.flash-card img {
+  max-height: 140px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+/* Badge */
+.flash-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: linear-gradient(45deg, red, #ff4500);
+  color: white !important;
+  font-weight: 900;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* Prices */
+.price .old {
+  color: #777 !important;
+  text-decoration: line-through;
+}
+
+.price .new {
+  color: #e60000 !important;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+/* Buy button */
+.flash-card .btn {
+  background: black !important;
+  color: white !important;
+  border-radius: 30px;
+  font-weight: 700;
+}
+
+.flash-card .btn:hover {
+  background: #e60000 !important;
+}
