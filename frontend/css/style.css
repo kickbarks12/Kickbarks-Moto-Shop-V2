@@ -1217,3 +1217,312 @@ h1, h2, h3, h4, h5, p, span {
 .flash-card .btn:hover {
   background: #e60000 !important;
 }
+
+body {
+  padding-top: 50px;
+}
+
+/* ===== Glass Sticky Navbar ===== */
+.navbar {
+  transition: all 0.3s ease;
+}
+
+.spin-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #ffc107;
+  color: #000;
+  padding: 12px 18px;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  z-index: 9999;
+}
+.spin-btn:hover {
+  transform: scale(1.05);
+}
+/* ===== Spin Modal ===== */
+.spin-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.spin-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  width: 300px;
+  text-align: center;
+}
+
+.wheel-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.wheel {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, #ffcc00, #ff8800);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 2s ease;
+  user-select: none;
+}
+.wheel-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.wheel {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  position: relative;
+  background: conic-gradient(
+    #ffcc00 0deg 72deg,
+    #ff8800 72deg 144deg,
+    #00c853 144deg 216deg,
+    #2196f3 216deg 288deg,
+    #e53935 288deg 360deg
+  );
+  transition: transform 3s cubic-bezier(.17,.67,.83,.67);
+  cursor: pointer;
+}
+
+.slice {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 0%;
+  font-weight: bold;
+  color: #000;
+}
+
+.slice:nth-child(1) { transform: rotate(0deg) translate(10px, -100px); }
+.slice:nth-child(2) { transform: rotate(72deg) translate(10px, -100px); }
+.slice:nth-child(3) { transform: rotate(144deg) translate(10px, -100px); }
+.slice:nth-child(4) { transform: rotate(216deg) translate(10px, -100px); }
+.slice:nth-child(5) { transform: rotate(288deg) translate(10px, -100px); }
+
+/* ===== Navbar color swap ===== */
+.navbar {
+  transition: all 0.3s ease;
+}
+
+/* Default: white */
+.navbar {
+  background: white !important;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: #000 !important;
+}
+
+
+/* ===== Mobile Flash Sale Optimization ===== */
+@media (max-width: 768px) {
+
+  .flash-sale-glass {
+    padding: 15px;
+  }
+
+  .flash-sale-glass .row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .flash-sale-glass .col-6 {
+    flex: 0 0 75%;
+    max-width: 75%;
+    scroll-snap-align: start;
+  }
+
+  .flash-card {
+    height: 100%;
+    padding: 15px;
+    border-radius: 15px;
+  }
+
+  .flash-card img {
+    max-height: 140px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+
+  .flash-card h6 {
+    font-size: 1rem;
+    min-height: 48px;
+  }
+
+  .flash-card .price {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .flash-card button {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+/* ===== Hero Shop Now Button (Force Colors) ===== */
+.shop-hero-btn {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 2px solid #000 !important;
+  font-weight: 600;
+}
+
+.shop-hero-btn:hover {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* ===== Login page text fix ===== */
+.login-card,
+.login-card h3,
+.login-card p,
+.login-card a {
+  color: #000 !important;
+}
+
+/* ===== Spin Wheel ===== */
+.wheel-container {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 20px auto;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    #f44336 0deg 72deg,
+    #ffeb3b 72deg 144deg,
+    #ff9800 144deg 216deg,
+    #4caf50 216deg 288deg,
+    #2196f3 288deg 360deg
+  );
+  border: 8px solid #000;
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+  transition: transform 4s cubic-bezier(.17,.67,.83,.67);
+  position: relative;
+}
+
+.wheel span {
+  position: absolute;
+  width: 50%;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 0%;
+  font-weight: 800;
+  font-size: 18px;
+  color: #000;
+}
+
+.wheel span:nth-child(1) { transform: rotate(36deg) translate(10px, -90px); }
+.wheel span:nth-child(2) { transform: rotate(108deg) translate(10px, -90px); }
+.wheel span:nth-child(3) { transform: rotate(180deg) translate(10px, -90px); }
+.wheel span:nth-child(4) { transform: rotate(252deg) translate(10px, -90px); }
+.wheel span:nth-child(5) { transform: rotate(324deg) translate(10px, -90px); }
+
+.pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 30px solid #000;
+  z-index: 10;
+}
+
+/* Customer name always black */
+.customer-name,
+.navbar.glass .customer-name,
+.navbar-dark .customer-name {
+  color: #000 !important;
+}
+/* FORCE customer name to black no matter what */
+#customerMenu .dropdown-toggle,
+#customerMenu .dropdown-toggle *,
+#customerMenu span {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+/* FORCE customer dropdown items to black */
+#customerMenu .dropdown-menu,
+#customerMenu .dropdown-menu * {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
+/* Keep hover readable */
+#customerMenu .dropdown-menu .dropdown-item:hover {
+  background: #f1f1f1 !important;
+  color: #000 !important;
+}
+#checkoutBtn {
+  position: relative;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.checkout-summary,
+#cart-items,
+.page,
+.container,
+section {
+  pointer-events: auto !important;
+}
+
+.spin-modal,
+.voucher-popup,
+.loader {
+  pointer-events: none !important;
+}
+.bg-purple {
+  background-color: #6f42c1 !important;
+  color: white !important;
+}
+
+.bg-orange {
+  background-color: #fd7e14 !important;
+  color: white !important;
+}
+/* ===== MY ORDERS PAGE FIX ===== */
+.my-orders,
+.my-orders *,
+.my-orders .card,
+.my-orders .card * {
+  color: #111 !important;
+  text-shadow: none !important;
+}
+
+.my-orders .card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 14px;
+}

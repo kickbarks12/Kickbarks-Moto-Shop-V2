@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>My Profile</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <h3>My Profile</h3>
+
+      <input id="name" class="form-control mb-2" placeholder="Full Name" />
+      <input id="birthday" type="date" class="form-control mb-2" />
+      <input id="phone" class="form-control mb-2" placeholder="Mobile" />
+
+      <button class="btn btn-dark" onclick="save()">Save</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const customer = JSON.parse(localStorage.getItem("customer"));
+
+      if (!customer) location.href = "login.html";
+
+      name.value = customer.name || "";
+      birthday.value = customer.birthday || "";
+      phone.value = customer.phone || "";
+
+      function save() {
+        fetch("/api/customers/profile/" + customer._id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name.value,
+            birthday: birthday.value,
+            phone: phone.value,
+          }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            localStorage.setItem("customer", JSON.stringify(data));
+            alert("Profile updated");
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark top-fixed">
+<nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white">
   <div class="container">
     <a class="navbar-brand fw-bold" href="index.html"> Kickbarks Moto Shop </a>
 
@@ -14,19 +14,42 @@
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="index.html">| Home |</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="shop.html">Shop</a>
+          <a class="nav-link" href="shop.html">| Shop |</a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="cart.html">Cart</a>
+          <a class="nav-link" href="cart.html">| Cart |</a>
+        </li>
+        <li class="nav-item" id="loginLink">
+          <a class="nav-link" href="login.html">| Login |</a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link" href="login.html">Login</a>
+        <li class="nav-item dropdown d-none" id="customerMenu">
+          <a
+            class="nav-link dropdown-toggle fw-bold customer-name"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+          >
+            <span id="userName"></span>
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><a class="dropdown-item" href="profile.html">👤 Profile</a></li>
+            <li>
+              <a class="dropdown-item" href="my-orders.html">📦 My Orders</a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item text-danger" href="#" onclick="logout()"
+                >🚪 Logout</a
+              >
+            </li>
+          </ul>
         </li>
       </ul>
     </div>

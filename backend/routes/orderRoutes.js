@@ -13,7 +13,8 @@ function generateReference() {
 // CREATE ORDER (Checkout)
 router.post("/", async (req, res) => {
   try {
-    const { customer, items, subtotal, discount, shipping, total } = req.body;
+    const { customer, items, subtotal, discount, shipping, total, flashSale } = req.body;
+
 
     if (!customer || !customer.name || !customer.email || !customer.phone || !customer.address) {
       return res.status(400).json({ message: "Customer info is required" });
@@ -24,14 +25,16 @@ router.post("/", async (req, res) => {
     }
 
     const order = await Order.create({
-      reference: generateReference(),
-      customer,
-      items,
-      subtotal,
-      discount,
-      shipping,
-      total
-    });
+  reference: generateReference(),
+  customer,
+  items,
+  subtotal,
+  discount,
+  shipping,
+  total,
+  flashSale
+});
+
 
 const invoicePath = generateInvoice(order);
 
@@ -79,9 +82,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+// ================= MY ORDERS (Customer) =================
+router.get("/my/:email", async (req, res) => {
+  try {
+    const orders = await Order.find({
+      "customer.email": req.params.email
+    }).sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch {
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+});
 
 
-// GET all orders (Admin)
+// ================= INVOICE =================
 router.get("/:id/invoice", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -132,5 +147,8 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to delete order" });
   }
 });
+
+
+
 
 module.exports = router;

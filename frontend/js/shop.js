@@ -79,5 +79,26 @@ function addToCart(product) {
   }
 
   localStorage.setItem("cart", JSON.stringify(cart));
-  alert("Added to cart!");
+
+// If logged in, save cart to MongoDB
+const customer = JSON.parse(localStorage.getItem("customer"));
+if (customer) {
+  fetch("/api/customers/cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      customerId: customer._id,
+      cart: cart.map(i => ({
+        productId: i.id,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image
+      }))
+    })
+  });
+}
+
+alert("Added to cart!");
+
 }

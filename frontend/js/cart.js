@@ -3,14 +3,15 @@ let appliedVoucher = localStorage.getItem("appliedVoucher") || null;
 let myVouchers = JSON.parse(localStorage.getItem("myVouchers")) || [];
 let freeShipping = localStorage.getItem("freeShipping") === "true";
 
+console.log("🔥 cart.js loaded");
 
 
 const SHIPPING_FEE = 150;
 
 document.addEventListener("DOMContentLoaded", () => {
+  syncCartToServer();
   renderCart();
   renderVoucherWallet();
-  showDailyVoucherPopup();
 });
 
 
@@ -141,7 +142,17 @@ function applyPromo() {
 }
 
 
+
+
 function checkout() {
+  const loggedInCustomer = JSON.parse(localStorage.getItem("customer"));
+
+  if (!loggedInCustomer) {
+    alert("Please login to continue checkout");
+    window.location.href = "login.html";
+    return;
+  }
+
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   if (cart.length === 0) {
@@ -149,26 +160,32 @@ function checkout() {
     return;
   }
 
- const name = document.getElementById("cust-name").value;
-const email = document.getElementById("cust-email").value;
-const phone = document.getElementById("cust-phone").value;   // ✅
-const address = document.getElementById("cust-address").value;
+  // 🔥 Customer info
+  const name = document.getElementById("cust-name").value || loggedInCustomer.name;
+  const email = loggedInCustomer.email;   // FORCE real account email
+  const phone = document.getElementById("cust-phone").value || loggedInCustomer.phone;
+  const address = document.getElementById("cust-address").value;
 
-
-  if (!name || !email || !phone || !address) {
-    alert("Please enter your name, email, phone, and delivery address.");
+  if (!name || !phone || !address) {
+    alert("Please fill your name, phone and delivery address.");
     return;
   }
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const discount = (subtotal * promoDiscount) / 100;
-  const total = subtotal - discount + SHIPPING_FEE;
+  const shippingCost = freeShipping ? 0 : SHIPPING_FEE;
+  const total = subtotal - discount + shippingCost;
 
   fetch("/api/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      customer: { name, email, phone, address },
+      customer: {
+        name,
+        email,
+        phone,
+        address
+      },
       items: cart.map(i => ({
         productId: i.id,
         name: i.name,
@@ -177,7 +194,7 @@ const address = document.getElementById("cust-address").value;
       })),
       subtotal,
       discount,
-     shipping: shippingCost,
+      shipping: shippingCost,
       total
     })
   })
@@ -187,77 +204,21 @@ const address = document.getElementById("cust-address").value;
     })
     .then(() => {
       localStorage.removeItem("cart");
-localStorage.removeItem("promoDiscount");
-localStorage.removeItem("freeShipping");
+      localStorage.removeItem("promoDiscount");
+      localStorage.removeItem("freeShipping");
       alert("Order placed successfully!");
-      window.location.href = "/shop.html";
+      window.location.href = "my-orders.html";
     })
-    .catch(() => alert("Checkout failed"));
+    .catch(err => {
+      console.error(err);
+      alert("Checkout failed");
+    });
 }
+
+
+
 
 let voucherCountdown;
-
-function showFreeShipOffer() {
-  let time = 5;
-  document.getElementById("voucherTimer").textContent = time;
-  document.getElementById("freeShipPopup").classList.remove("d-none");
-
-  voucherCountdown = setInterval(() => {
-    time--;
-    document.getElementById("voucherTimer").textContent = time;
-
-    if (time <= 0) {
-      clearInterval(voucherCountdown);
-      closeVoucherPopup();
-      checkout(); // continue checkout normally
-    }
-  }, 1000);
-}
-
-function closeVoucherPopup() {
-  document.getElementById("freeShipPopup").classList.add("d-none");
-}
-
-function claimFreeShipping() {
-  clearInterval(voucherCountdown);
-  document.getElementById("freeShipPopup").classList.add("d-none");
-
-  fetch("/api/promo/validate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code: "FREEDEL" })
-  })
-    .then(res => {
-      if (!res.ok) throw new Error();
-      return res.json();
-    })
-    .then(data => {
-  if (!data.freeShipping) {
-    alert("This voucher does not give free shipping");
-    return;
-  }
-
-  freeShipping = true;
-localStorage.setItem("freeShipping", "true");
-
-  appliedVoucher = "FREEDEL";
-
-  // 🔐 Mark as claimed today
-  localStorage.setItem("lastFreeDelClaim", new Date().toDateString());
-
-  // 💼 Save in wallet
-  if (!myVouchers.includes("FREEDEL")) {
-    myVouchers.push("FREEDEL");
-    localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
-  }
-
-  alert("🎉 Free shipping voucher saved to your wallet!");
-  renderCart();
-  renderVoucherWallet();
-})
-
-    .catch(() => alert("Voucher not available"));
-}
 
 
 function renderVoucherWallet() {
@@ -290,11 +251,38 @@ function renderVoucherWallet() {
   });
 }
 
-function showDailyVoucherPopup() {
-  const lastClaim = localStorage.getItem("lastFreeDelClaim");
-  const today = new Date().toDateString();
 
-  if (lastClaim === today) return; // already claimed today
+function syncCartToServer() {
+  const customer = JSON.parse(localStorage.getItem("customer"));
+  if (!customer) return;
 
-  document.getElementById("freeShipPopup").classList.remove("d-none");
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  fetch("/api/customers/cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      customerId: customer._id,
+      cart: cart.map(i => ({
+        productId: i.id,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image
+      }))
+    })
+  });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("checkoutBtn");
+
+  console.log("Checkout button:", btn);
+
+  if (btn) {
+    btn.addEventListener("click", () => {
+      console.log("🟢 Checkout button clicked");
+      checkout();
+    });
+  }
+});

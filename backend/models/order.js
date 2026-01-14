@@ -35,6 +35,14 @@ const orderSchema = new mongoose.Schema(
       required: true
     },
 
+    // ⚡ Flash Sale
+flashSale: {
+  type: Boolean,
+  default: false
+},
+
+
+
     // 🚚 Delivery status
     status: {
       type: String,
