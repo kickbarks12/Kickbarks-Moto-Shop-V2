@@ -51,49 +51,31 @@ function closeSpin() {
   document.getElementById("spinModal").classList.add("d-none");
 }
 
-document.getElementById("wheel").onclick = () => {
+document.addEventListener("click", e => {
+  if (e.target.closest("#wheel")) {
+    spinWheel();
+  }
+});
+
+function spinWheel() {
   const wheel = document.getElementById("wheel");
   const resultEl = document.getElementById("spinResult");
 
-  const slice = Math.floor(Math.random() * prizes.length);
-  const degrees = 360 * 6 + slice * (360 / prizes.length);
+  const spin = Math.floor(Math.random() * prizes.length);
+  const deg = 360 * 5 + spin * 72;
 
-  currentRotation += degrees;
-  wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-  const prize = prizes[slice];
+  wheel.style.transform = `rotate(${deg}deg)`;
 
   setTimeout(() => {
+    const prize = prizes[spin];
     localStorage.setItem("lastSpinDate", new Date().toDateString());
 
     if (prize.discount) {
-      const code = "SPIN" + prize.discount;
-      localStorage.setItem("promoDiscount", prize.discount);
-      localStorage.setItem("appliedVoucher", code);
-
-      let myVouchers = JSON.parse(localStorage.getItem("myVouchers")) || [];
-      if (!myVouchers.includes(code)) {
-        myVouchers.push(code);
-        localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
-      }
-
       resultEl.textContent = `🎉 You won ${prize.label}!`;
-    }
-    else if (prize.freeShipping) {
-      const code = "SPIN-FREEDEL";
-      localStorage.setItem("freeShipping", "true");
-      localStorage.setItem("appliedVoucher", code);
-
-      let myVouchers = JSON.parse(localStorage.getItem("myVouchers")) || [];
-      if (!myVouchers.includes(code)) {
-        myVouchers.push(code);
-        localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
-      }
-
+    } else if (prize.freeShipping) {
       resultEl.textContent = "🚚 You won FREE SHIPPING!";
-    }
-    else {
+    } else {
       resultEl.textContent = "😅 Try again next time!";
     }
-  }, 4000);
-};
+  }, 2000);
+}

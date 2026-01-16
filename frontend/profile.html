@@ -21,26 +21,43 @@
     <script>
       const customer = JSON.parse(localStorage.getItem("customer"));
 
-      if (!customer) location.href = "login.html";
+      if (!customer) {
+        location.href = "login.html";
+      }
 
-      name.value = customer.name || "";
-      birthday.value = customer.birthday || "";
-      phone.value = customer.phone || "";
+      const nameInput = document.getElementById("name");
+      const birthdayInput = document.getElementById("birthday");
+      const phoneInput = document.getElementById("phone");
+
+      nameInput.value = customer.name || "";
+      birthdayInput.value = customer.birthday || "";
+      phoneInput.value = customer.phone || "";
 
       function save() {
+        if (!nameInput.value || !phoneInput.value) {
+          alert("Name and phone are required.");
+          return;
+        }
+
         fetch("/api/customers/profile/" + customer._id, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: name.value,
-            birthday: birthday.value,
-            phone: phone.value,
+            name: nameInput.value,
+            birthday: birthdayInput.value,
+            phone: phoneInput.value,
           }),
         })
-          .then((r) => r.json())
+          .then((res) => {
+            if (!res.ok) throw new Error("Update failed");
+            return res.json();
+          })
           .then((data) => {
             localStorage.setItem("customer", JSON.stringify(data));
             alert("Profile updated");
+          })
+          .catch(() => {
+            alert("Failed to update profile. Please try again.");
           });
       }
     </script>

@@ -1,3 +1,6 @@
+
+
+
 let allProducts = [];
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -5,11 +8,21 @@ const brandFilter = urlParams.get("brand");
 
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const status = document.getElementById("shopStatus");
+if (status) status.textContent = "Loading products...";
   fetch("/api/products")
     .then(res => res.json())
     .then(data => {
       allProducts = Array.isArray(data) ? data : data.products;
-      renderProducts(allProducts);
+
+// apply brand filter once (if present)
+const productsToRender = brandFilter
+  ? allProducts.filter(p => p.brand === brandFilter)
+  : allProducts;
+
+renderProducts(productsToRender);
+
     });
 });
 
@@ -32,18 +45,31 @@ function renderProducts(products) {
         <div class="card-body text-center">
           <h6 class="fw-bold">${product.name}</h6>
           <p class="text-muted small">${product.category}</p>
-          <button class="btn btn-dark w-100 add-to-cart">Add to Cart</button>
+          <button
+  class="btn btn-dark w-100 add-to-cart"
+  ${product.stock <= 0 ? "disabled" : ""}
+>
+  ${product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+</button>
+
         </div>
       </div>
     `;
 
-    col.querySelector(".add-to-cart").onclick = () => addToCart(product);
-    productList.appendChild(col);
-    let filteredProducts = products;
+    col.querySelector(".add-to-cart").onclick = () => {
+  if (product.stock <= 0) {
+    alert("This product is out of stock.");
+    return;
+  }
+  addToCart(product);
+};
 
-if (brandFilter) {
-  filteredProducts = products.filter(p => p.brand === brandFilter);
-}
+    productList.appendChild(col);
+//     let filteredProducts = products;
+
+// if (brandFilter) {
+//   filteredProducts = products.filter(p => p.brand === brandFilter);
+// }
 
   });
 }
@@ -61,7 +87,14 @@ function searchProducts() {
 
 // 🧺 CART
 function addToCart(product) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let cart;
+try {
+  cart = JSON.parse(localStorage.getItem("cart")) || [];
+  if (!Array.isArray(cart)) cart = [];
+} catch {
+  cart = [];
+}
+
 
   const productId = product._id || product.name;
   const existing = cart.find(item => item.id === productId);

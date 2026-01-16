@@ -1,7 +1,13 @@
 let promoDiscount = Number(localStorage.getItem("promoDiscount")) || 0;
 let appliedVoucher = localStorage.getItem("appliedVoucher") || null;
+
+// voucher wallet
 let myVouchers = JSON.parse(localStorage.getItem("myVouchers")) || [];
+let usedVouchers = JSON.parse(localStorage.getItem("usedVouchers")) || [];
+
+
 let freeShipping = localStorage.getItem("freeShipping") === "true";
+
 
 console.log("🔥 cart.js loaded");
 
@@ -39,8 +45,12 @@ function renderCart() {
   cartItemsContainer.innerHTML = "";
 
   cart.forEach((item, index) => {
-    const rowTotal = item.price * item.quantity;
-    subtotal += rowTotal;
+    const price = Number(item.price) || 0;
+const qty = Number(item.quantity) || 0;
+const rowTotal = price * qty;
+
+subtotal += rowTotal;
+
 
     const row = document.createElement("div");
 row.className = "row align-items-center mb-3 cart-row";
@@ -107,9 +117,84 @@ totalEl.textContent = `₱${total.toFixed(2)}`;
 
 }
 
-function applyPromo() {
-  const code = document.getElementById("promoCode").value.trim();
+
+
+// function applyPromo() {
+
+//   const code = document.getElementById("promoCode").value.trim().toUpperCase();
+
+// if (usedVouchers.includes(code)) {
+//   alert("This voucher has already been used and cannot be used again.");
+//   return;
+// }
+
+// // allow replacing existing voucher
+// appliedVoucher = null;
+// promoDiscount = 0;
+// localStorage.removeItem("appliedVoucher");
+// localStorage.removeItem("promoDiscount");
+
   
+//   const code = document.getElementById("promoCode").value.trim();
+  
+
+//   fetch("/api/promo/validate", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ code })
+//   })
+//     .then(res => {
+//       if (!res.ok) throw new Error("Invalid");
+//       return res.json();
+//     })
+//     .then(data => {
+//   promoDiscount = data.discountPercent;
+//   appliedVoucher = code.toUpperCase();
+
+//   // if (!myVouchers.includes(appliedVoucher)) {
+//   //   myVouchers.push(appliedVoucher);
+//   //   localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
+//   // }
+
+//   localStorage.setItem("appliedVoucher", appliedVoucher);
+//   localStorage.setItem("promoDiscount", promoDiscount);
+
+//   // remove voucher from wallet after use
+// myVouchers = myVouchers.filter(v => v !== appliedVoucher);
+// localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
+
+// alert(`🎉 Voucher ${appliedVoucher} applied and used!`);
+
+//   renderCart();
+//   renderVoucherWallet();
+// })
+
+
+//     .catch(() => alert("Invalid or expired promo code"));
+// }
+function applyPromo() {
+  const code = document
+    .getElementById("promoCode")
+    .value
+    .trim()
+    .toUpperCase();
+
+  if (!code) {
+    alert("Please enter a promo code.");
+    return;
+  }
+
+  // 🚫 block reused vouchers permanently
+  if (usedVouchers.includes(code)) {
+    alert("This voucher has already been used and cannot be used again.");
+    return;
+  }
+
+  // allow replacing existing voucher
+  appliedVoucher = null;
+  promoDiscount = 0;
+  localStorage.removeItem("appliedVoucher");
+  localStorage.removeItem("promoDiscount");
 
   fetch("/api/promo/validate", {
     method: "POST",
@@ -121,23 +206,25 @@ function applyPromo() {
       return res.json();
     })
     .then(data => {
-  promoDiscount = data.discountPercent;
-  appliedVoucher = code.toUpperCase();
+      promoDiscount = data.discountPercent;
+      appliedVoucher = code;
 
-  if (!myVouchers.includes(appliedVoucher)) {
-    myVouchers.push(appliedVoucher);
-    localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
-  }
+      localStorage.setItem("promoDiscount", promoDiscount);
+      localStorage.setItem("appliedVoucher", appliedVoucher);
 
-  localStorage.setItem("appliedVoucher", appliedVoucher);
-  localStorage.setItem("promoDiscount", promoDiscount);
+      // ✅ permanently mark voucher as used
+      usedVouchers.push(code);
+      localStorage.setItem("usedVouchers", JSON.stringify(usedVouchers));
 
-  alert(`🎉 Voucher ${appliedVoucher} applied!`);
-  renderCart();
-  renderVoucherWallet();
-})
+      // remove from wallet
+      myVouchers = myVouchers.filter(v => v !== code);
+      localStorage.setItem("myVouchers", JSON.stringify(myVouchers));
 
+      alert(`🎉 Voucher ${code} applied and permanently used!`);
 
+      renderCart();
+      renderVoucherWallet();
+    })
     .catch(() => alert("Invalid or expired promo code"));
 }
 
@@ -181,6 +268,7 @@ function checkout() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       customer: {
+        _id: loggedInCustomer._id, 
         name,
         email,
         phone,
@@ -205,6 +293,8 @@ function checkout() {
     .then(() => {
       localStorage.removeItem("cart");
       localStorage.removeItem("promoDiscount");
+      localStorage.removeItem("appliedVoucher");
+
       localStorage.removeItem("freeShipping");
       alert("Order placed successfully!");
       window.location.href = "my-orders.html";
@@ -233,22 +323,39 @@ function renderVoucherWallet() {
 
   wallet.innerHTML = "";
 
+  function renderVoucherWallet() {
+  const wallet = document.getElementById("voucherWallet");
+  if (!wallet) return;
+
+  if (myVouchers.length === 0) {
+    wallet.innerHTML = "<p class='text-muted'>No vouchers available</p>";
+    return;
+  }
+
+  wallet.innerHTML = "";
+
   myVouchers.forEach(code => {
     const card = document.createElement("div");
-    card.className = "voucher-card";
+    card.className = "voucher-card d-flex justify-content-between align-items-center mb-2";
 
     card.innerHTML = `
       <strong>${code}</strong>
-      <button class="btn btn-sm btn-dark mt-2">Use</button>
+      <button class="btn btn-sm btn-dark">Use</button>
     `;
 
     card.querySelector("button").onclick = () => {
+      if (appliedVoucher) {
+        alert("You already used a voucher.");
+        return;
+      }
+
       document.getElementById("promoCode").value = code;
       applyPromo();
     };
 
     wallet.appendChild(card);
   });
+}
 }
 
 

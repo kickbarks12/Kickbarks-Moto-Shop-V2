@@ -83,11 +83,37 @@ router.get("/", async (req, res) => {
 });
 
 // ================= MY ORDERS (Customer) =================
+// ================= MY ORDERS (Customer - SECURE) =================
+// ================= MY ORDERS (Customer - SECURE) =================
+router.get("/my", async (req, res) => {
+  try {
+    const customerId = req.query.customerId;
+
+    if (!customerId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const orders = await Order.find({
+      "customer._id": customerId
+    }).sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+});
+
+
 router.get("/my/:email", async (req, res) => {
   try {
     const orders = await Order.find({
-      "customer.email": req.params.email
-    }).sort({ createdAt: -1 });
+  $or: [
+    { "customer._id": customerId },           // new orders
+    { "customer.email": req.query.email }     // old orders
+  ]
+}).sort({ createdAt: -1 });
+
 
     res.json(orders);
   } catch {

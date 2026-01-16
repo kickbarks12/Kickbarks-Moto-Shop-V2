@@ -1526,3 +1526,21 @@ section {
   background: rgba(255,255,255,0.95);
   border-radius: 14px;
 }
+/* ===== My Orders title (force white) ===== */
+.my-orders h2,
+.my-orders h2 * {
+  color: #fff !important;
+  text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+/* ===== FIX SPIN MODAL CLICK ISSUE ===== */
+.spin-modal {
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+}
+
+.spin-modal * {
+  pointer-events: auto !important;
+}
+.page {
+  pointer-events: auto;
+}
