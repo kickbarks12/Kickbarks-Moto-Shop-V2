@@ -53,6 +53,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/reports", require("./routes/reportRoutes"));
 app.use("/api/promo", require("./routes/promoRoutes"));
+app.use("/api/customers", require("./routes/customerAuth"));
 
 // Serve frontend static files (MUST BE LAST)
 app.use(express.static(path.join(__dirname, "../frontend")));
@@ -67,5 +68,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
 
-app.use("/api/customers", require("./routes/customerAuth"));
+
 

@@ -13,8 +13,20 @@ function generateReference() {
 // CREATE ORDER (Checkout)
 router.post("/", async (req, res) => {
   try {
-    const { customer, items, subtotal, discount, shipping, total, flashSale } = req.body;
+    const {
+      customerId,
+      customer,
+      items,
+      subtotal,
+      discount,
+      shipping,
+      total,
+      flashSale
+    } = req.body;
 
+    if (!customerId) {
+      return res.status(400).json({ message: "customerId is required" });
+    }
 
     if (!customer || !customer.name || !customer.email || !customer.phone || !customer.address) {
       return res.status(400).json({ message: "Customer info is required" });
@@ -25,52 +37,43 @@ router.post("/", async (req, res) => {
     }
 
     const order = await Order.create({
-  reference: generateReference(),
-  customer,
-  items,
-  subtotal,
-  discount,
-  shipping,
-  total,
-  flashSale
-});
+      reference: generateReference(),
+      customerId,
+      customer,
+      items,
+      subtotal,
+      discount,
+      shipping,
+      total,
+      flashSale
+    });
 
+    const invoicePath = generateInvoice(order);
 
-const invoicePath = generateInvoice(order);
-
-
-
-    
-  mailer.sendMail(
-  {
-    to: customer.email,
-    subject: "Kickbarks Invoice & Order Confirmation",
-    html: `
-      <h2>Thank you for your order</h2>
-      <p><strong>Reference:</strong> ${order.reference}</p>
-      <p><strong>Total:</strong> ₱${order.total}</p>
-      <p>Your invoice is attached.</p>
-    `,
-    attachments: [
-      {
-        filename: `invoice-${order.reference}.pdf`,
-        path: invoicePath
-      }
-    ]
-  },
-  (err) => {
-    if (err) console.error("Email failed:", err.message);
-  }
-);
-
-
+    mailer.sendMail({
+      to: customer.email,
+      subject: "Kickbarks Invoice & Order Confirmation",
+      html: `
+        <h2>Thank you for your order</h2>
+        <p><strong>Reference:</strong> ${order.reference}</p>
+        <p><strong>Total:</strong> ₱${order.total}</p>
+        <p>Your invoice is attached.</p>
+      `,
+      attachments: [
+        {
+          filename: `invoice-${order.reference}.pdf`,
+          path: invoicePath
+        }
+      ]
+    });
 
     res.status(201).json(order);
   } catch (error) {
-    console.error(error);
+    console.error("ORDER CREATE ERROR:", error);
     res.status(500).json({ message: "Failed to create order" });
   }
 });
+
 
 // GET all orders (Admin)
 router.get("/", async (req, res) => {
@@ -82,46 +85,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ================= MY ORDERS (Customer) =================
-// ================= MY ORDERS (Customer - SECURE) =================
-// ================= MY ORDERS (Customer - SECURE) =================
-router.get("/my", async (req, res) => {
-  try {
-    const customerId = req.query.customerId;
-
-    if (!customerId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const orders = await Order.find({
-      "customer._id": customerId
-    }).sort({ createdAt: -1 });
-
-    res.json(orders);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch orders" });
-  }
-});
-
-
-router.get("/my/:email", async (req, res) => {
-  try {
-    const orders = await Order.find({
-  $or: [
-    { "customer._id": customerId },           // new orders
-    { "customer.email": req.query.email }     // old orders
-  ]
-}).sort({ createdAt: -1 });
-
-
-    res.json(orders);
-  } catch {
-    res.status(500).json({ message: "Failed to fetch orders" });
-  }
-});
-
-
 // ================= INVOICE =================
 router.get("/:id/invoice", async (req, res) => {
   try {
@@ -132,8 +95,6 @@ router.get("/:id/invoice", async (req, res) => {
     res.status(500).json({ message: "Failed to generate invoice" });
   }
 });
-
-
 
 
 // UPDATE order status (Admin)
@@ -178,3 +139,21 @@ router.delete("/:id", async (req, res) => {
 
 
 module.exports = router;
+
+router.get("/my", async (req, res) => {
+  try {
+    const { customerId } = req.query;
+
+    if (!customerId) {
+      return res.status(400).json({ message: "customerId is required" });
+    }
+
+    const orders = await Order.find({ customerId })
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+});

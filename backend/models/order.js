@@ -8,7 +8,14 @@ const orderSchema = new mongoose.Schema(
       unique: true
     },
 
-    // 👤 Customer
+    // 👤 Customer ID (IMPORTANT)
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      required: true
+    },
+
+    // 👤 Customer Snapshot (for invoice/history)
     customer: {
       name: String,
       email: String,
@@ -36,12 +43,10 @@ const orderSchema = new mongoose.Schema(
     },
 
     // ⚡ Flash Sale
-flashSale: {
-  type: Boolean,
-  default: false
-},
-
-
+    flashSale: {
+      type: Boolean,
+      default: false
+    },
 
     // 🚚 Delivery status
     status: {

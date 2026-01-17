@@ -264,29 +264,35 @@ function checkout() {
   const total = subtotal - discount + shippingCost;
 
   fetch("/api/orders", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      customer: {
-        _id: loggedInCustomer._id, 
-        name,
-        email,
-        phone,
-        address
-      },
-      items: cart.map(i => ({
-        productId: i.id,
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity
-      })),
-      subtotal,
-      discount,
-      shipping: shippingCost,
-      total
-    })
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    // 🔑 REQUIRED FOR MY ORDERS
+    customerId: loggedInCustomer._id,
+
+    // keep customer snapshot for invoice/email
+    customer: {
+      name,
+      email,
+      phone,
+      address
+    },
+
+    items: cart.map(i => ({
+      productId: i.id,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity
+    })),
+
+    subtotal,
+    discount,
+    shipping: shippingCost,
+    total
   })
-    .then(res => {
+})
+
+  .then(res => {
       if (!res.ok) throw new Error("Checkout failed");
       return res.json();
     })
