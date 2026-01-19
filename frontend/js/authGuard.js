@@ -1,17 +1,43 @@
-const token = localStorage.getItem("adminToken");
+// ================= ADMIN AUTH GUARD =================
+document.addEventListener("DOMContentLoaded", verifyAdminSession);
 
-if (!token) {
-  window.location.href = "admin-login.html";
+function verifyAdminSession() {
+  const token = getAdminToken();
+
+  if (!token) {
+    redirectToLogin();
+    return;
+  }
+
+  validateToken(token);
 }
 
-fetch("/api/auth/verify", {
-  headers: {
-    Authorization: "Bearer " + token
-  }
-})
-.then(res => {
-  if (res.status !== 200) {
-    localStorage.removeItem("adminToken");
-    window.location.href = "admin-login.html";
-  }
-});
+// ================= VERIFY TOKEN =================
+function validateToken(token) {
+  fetch("/api/auth/verify", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Invalid token");
+    })
+    .catch(() => {
+      clearAdminSession();
+      redirectToLogin();
+    });
+}
+
+// ================= HELPERS =================
+function getAdminToken() {
+  return localStorage.getItem("adminToken");
+}
+
+function clearAdminSession() {
+  localStorage.removeItem("adminToken");
+}
+
+function redirectToLogin() {
+  window.location.href = "admin-login.html";
+}

@@ -5,48 +5,89 @@ const User = require("../models/user");
 
 const router = express.Router();
 
-// REGISTER
+// ================= REGISTER =================
 router.post("/register", async (req, res) => {
   try {
-    const hashed = await bcrypt.hash(req.body.password, 10);
+    const { email, password, role = "admin" } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
-      email: req.body.email,
-      password: hashed
+      email,
+      password: hashedPassword,
+      role,
     });
-    res.json(user);
+
+    res.status(201).json({
+      message: "User registered successfully",
+      userId: user._id,
+    });
   } catch (err) {
-    res.status(400).json({ message: "User already exists" });
+    console.error("Register error:", err);
+    res.status(500).json({ message: "Registration failed" });
   }
 });
 
-// LOGIN
+// ================= LOGIN =================
 router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(401).json({ message: "Invalid email" });
+  try {
+    const { email, password } = req.body;
 
-  const valid = await bcrypt.compare(req.body.password, user.password);
-  if (!valid) return res.status(401).json({ message: "Invalid password" });
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "2h" }
-  );
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-  res.json({ token });
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    res.json({ token });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Login failed" });
+  }
 });
 
-
-
+// ================= VERIFY TOKEN =================
 router.get("/verify", (req, res) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.sendStatus(401);
+
+    const token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.JWT_SECRET);
+
     res.sendStatus(200);
   } catch {
     res.sendStatus(401);
   }
 });
-
 
 module.exports = router;

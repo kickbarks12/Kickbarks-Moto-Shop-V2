@@ -1,60 +1,92 @@
 const express = require("express");
-const router = express.Router();
 const Product = require("../models/product");
 
+const router = express.Router();
 
-
-// GET all products
+// ================= GET ALL PRODUCTS =================
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
-  } catch (error) {
+  } catch (err) {
+    console.error("Fetch products error:", err);
     res.status(500).json({ message: "Failed to fetch products" });
   }
 });
 
-// CREATE a product (Admin)
-router.post("/", async (req, res) => {
+// ================= CREATE PRODUCT (ADMIN) =================
+const adminAuth = require("../middleware/adminAuth");
+
+router.post("/", adminAuth, async (req, res) => {
+
   try {
+    const {
+      name,
+      price,
+      category,
+      description,
+      image,
+      stock,
+      brand,
+    } = req.body;
+
+    if (!name || price == null || !category) {
+      return res
+        .status(400)
+        .json({ message: "Name, price, and category are required" });
+    }
+
     const product = await Product.create({
-      name: req.body.name,
-      price: req.body.price,
-      category: req.body.category,
-      description: req.body.description,
-      image: req.body.image,
-      stock: req.body.stock
+      name,
+      price,
+      category,
+      description,
+      image,
+      stock: stock ?? 0,
+      brand,
     });
 
     res.status(201).json(product);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    console.error("Create product error:", err);
+    res.status(400).json({ message: err.message });
   }
 });
 
-// GET single product
+// ================= GET SINGLE PRODUCT =================
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     res.json(product);
   } catch (err) {
-    res.status(404).json({ message: "Product not found" });
+    console.error("Get product error:", err);
+    res.status(400).json({ message: "Invalid product ID" });
   }
 });
 
-// UPDATE product
+// ================= UPDATE PRODUCT =================
 router.put("/:id", async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(
+    const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true, runValidators: true }
     );
-    res.json(updated);
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(updatedProduct);
   } catch (err) {
-    res.status(400).json({ message: "Update failed" });
+    console.error("Update product error:", err);
+    res.status(400).json({ message: "Failed to update product" });
   }
 });
-
 
 module.exports = router;

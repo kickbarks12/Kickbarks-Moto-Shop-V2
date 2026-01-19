@@ -1,94 +1,54 @@
-const ExcelJS = require("exceljs");
-
 const express = require("express");
-const Order = require("../models/order.js");
-
-
 const router = express.Router();
+const Order = require("../models/order");
+const adminAuth = require("../middleware/adminAuth");
 
-// 📊 SUMMARY
-router.get("/summary", async (req, res) => {
+// ================= SUMMARY =================
+router.get("/summary", adminAuth, async (req, res) => {
   const orders = await Order.find();
 
   const totalOrders = orders.length;
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
 
-  res.json({ totalOrders, totalRevenue });
+  const today = new Date().toISOString().split("T")[0];
+  const todayRevenue = orders
+    .filter(o => o.createdAt.toISOString().startsWith(today))
+    .reduce((sum, o) => sum + o.total, 0);
+
+  res.json({ totalOrders, totalRevenue, todayRevenue });
 });
 
-// 📅 DAILY SALES
-router.get("/daily", async (req, res) => {
+// ================= STATUS BREAKDOWN =================
+router.get("/status", adminAuth, async (req, res) => {
   const orders = await Order.find();
 
-  const daily = {};
-
+  const statusCount = {};
   orders.forEach(o => {
-    const date = o.createdAt.toISOString().split("T")[0];
-    daily[date] = (daily[date] || 0) + o.total;
+    statusCount[o.status] = (statusCount[o.status] || 0) + 1;
   });
 
-  res.json(daily);
+  res.json(statusCount);
 });
 
-// 🏆 TOP PRODUCTS
-router.get("/top-products", async (req, res) => {
+// ================= TOP PRODUCTS =================
+router.get("/top-products", adminAuth, async (req, res) => {
   const orders = await Order.find();
 
   const productSales = {};
 
   orders.forEach(o => {
     o.items.forEach(i => {
-      productSales[i.name] = (productSales[i.name] || 0) + i.quantity;
+      productSales[i.name] =
+        (productSales[i.name] || 0) + i.quantity;
     });
   });
 
-  const sorted = Object.entries(productSales)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0,5);
+  const top = Object.entries(productSales)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, qty]) => ({ name, qty }));
 
-  res.json(sorted);
+  res.json(top);
 });
-
-// 📤 EXPORT TO EXCEL
-router.get("/export", async (req, res) => {
-  const orders = await Order.find();
-
-  const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet("Sales");
-
-  sheet.columns = [
-    { header: "Order Date", key: "date", width: 20 },
-    { header: "Product", key: "product", width: 30 },
-    { header: "Quantity", key: "qty", width: 10 },
-    { header: "Price", key: "price", width: 15 },
-    { header: "Total", key: "total", width: 15 }
-  ];
-
-  orders.forEach(order => {
-    order.items.forEach(item => {
-      sheet.addRow({
-        date: order.createdAt.toISOString().split("T")[0],
-        product: item.name,
-        qty: item.quantity,
-        price: item.price,
-        total: order.total
-      });
-    });
-  });
-
-  res.setHeader(
-    "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=sales-report.xlsx"
-  );
-
-  await workbook.xlsx.write(res);
-  res.end();
-});
-
 
 module.exports = router;
-

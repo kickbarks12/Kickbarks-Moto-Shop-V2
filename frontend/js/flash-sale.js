@@ -1,138 +1,130 @@
 // ================= FLASH SALE TIMER =================
+const FLASH_DURATION_SECONDS = 2 * 60 * 60; // 2 hours
+let remainingSeconds = FLASH_DURATION_SECONDS;
 
-let totalSeconds = 2 * 60 * 60; // 2 hours
+const timerEls = {
+  hours: document.getElementById("flashHours"),
+  minutes: document.getElementById("flashMinutes"),
+  seconds: document.getElementById("flashSeconds"),
+};
+
+if (timerEls.hours && timerEls.minutes && timerEls.seconds) {
+  setInterval(updateFlashTimer, 1000);
+}
 
 function updateFlashTimer() {
-  totalSeconds--;
+  if (remainingSeconds <= 0) return;
 
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
+  remainingSeconds--;
 
-  const hoursEl = document.getElementById("flashHours");
-  const minutesEl = document.getElementById("flashMinutes");
-  const secondsEl = document.getElementById("flashSeconds");
+  const h = Math.floor(remainingSeconds / 3600);
+  const m = Math.floor((remainingSeconds % 3600) / 60);
+  const s = remainingSeconds % 60;
 
-  if (!hoursEl) return; // prevents JS errors on other pages
-
-  hoursEl.textContent = String(h).padStart(2, "0");
-  minutesEl.textContent = String(m).padStart(2, "0");
-  secondsEl.textContent = String(s).padStart(2, "0");
+  timerEls.hours.textContent = String(h).padStart(2, "0");
+  timerEls.minutes.textContent = String(m).padStart(2, "0");
+  timerEls.seconds.textContent = String(s).padStart(2, "0");
 }
 
-// Run every second
-setInterval(updateFlashTimer, 1000);
-
-// ================= FLASH SALE CART =================
-
-// Get existing cart
+// ================= CART HELPERS =================
 function getCart() {
-  return JSON.parse(localStorage.getItem("cart")) || [];
+  try {
+    const cart = JSON.parse(localStorage.getItem("cart"));
+    return Array.isArray(cart) ? cart : [];
+  } catch {
+    return [];
+  }
 }
 
-// Save cart
 function saveCart(cart) {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-// Add flash product to cart
-function addFlashToCart(product) {
-  let cart = getCart();
+function getCustomer() {
+  try {
+    return JSON.parse(localStorage.getItem("customer"));
+  } catch {
+    return null;
+  }
+}
 
-  const existing = cart.find(p => p.id === product.id);
+// ================= CART SYNC =================
+function syncCartToServer(cart) {
+  const customer = getCustomer();
+  if (!customer) return;
+
+  fetch("/api/customers/cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      customerId: customer._id,
+      cart: cart.map((item) => ({
+        productId: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+      })),
+    }),
+  }).catch((err) => console.error("Cart sync failed:", err));
+}
+
+// ================= FLASH SALE CART ACTIONS =================
+function addFlashToCart(product) {
+  const cart = getCart();
+  const existing = cart.find((item) => item.id === product.id);
 
   if (existing) {
     existing.quantity += 1;
-
   } else {
-    cart.push({
-  id: product.id,
-  name: product.name,
-  price: product.price,
-  image: product.image,
-  quantity: 1
-});
-
+    cart.push({ ...product, quantity: 1 });
   }
 
   saveCart(cart);
-  // 🔐 If logged in, save to MongoDB
-const customer = JSON.parse(localStorage.getItem("customer"));
-if (customer) {
-  fetch("/api/customers/cart", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      customerId: customer._id,
-      cart: cart.map(i => ({
-        productId: i.id,
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity,
-        image: i.image
-      }))
-    })
-  });
-}
+  syncCartToServer(cart);
 }
 
-// 🛒 Add to cart button
-document.addEventListener("click", function (e) {
-  if (e.target.closest(".add-flash-cart")) {
-    const btn = e.target.closest(".add-flash-cart");
+function buyFlashNow(product) {
+  const cart = [{ ...product, quantity: 1 }];
+  saveCart(cart);
+  syncCartToServer(cart);
+  window.location.href = "cart.html";
+}
 
-    const product = {
-      id: btn.dataset.id,
-      name: btn.dataset.name,
-      price: Number(btn.dataset.price),
-      image: btn.dataset.image
-    };
+// ================= EVENT DELEGATION =================
+document.addEventListener("click", handleFlashActions);
 
+function handleFlashActions(event) {
+  const addBtn = event.target.closest(".add-flash-cart");
+  const buyBtn = event.target.closest(".buy-flash-now");
+
+  if (addBtn) {
+    const product = extractProductData(addBtn);
     addFlashToCart(product);
-
-    btn.innerHTML = "✔";
-    setTimeout(() => {
-      btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
-    }, 700);
+    animateAddButton(addBtn);
+    return;
   }
-});
 
-// ⚡ Buy Now button
-document.addEventListener("click", function (e) {
-  if (e.target.closest(".buy-flash-now")) {
-    const btn = e.target.closest(".buy-flash-now");
-
-    const product = {
-      id: btn.dataset.id,
-      name: btn.dataset.name,
-      price: Number(btn.dataset.price),
-      image: btn.dataset.image
-    };
-
-    // overwrite cart with only this item
-    const cart = [{ ...product, quantity: 1 }];
-localStorage.setItem("cart", JSON.stringify(cart));
-
-const customer = JSON.parse(localStorage.getItem("customer"));
-if (customer) {
-  fetch("/api/customers/cart", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      customerId: customer._id,
-      cart: cart.map(i => ({
-        productId: i.id,
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity,
-        image: i.image
-      }))
-    })
-  });
+  if (buyBtn) {
+    const product = extractProductData(buyBtn);
+    buyFlashNow(product);
+  }
 }
 
+// ================= HELPERS =================
+function extractProductData(btn) {
+  return {
+    id: btn.dataset.id,
+    name: btn.dataset.name,
+    price: Number(btn.dataset.price),
+    image: btn.dataset.image,
+  };
+}
 
-    window.location.href = "cart.html";
-  }
-});
-
+function animateAddButton(button) {
+  const originalHTML = button.innerHTML;
+  button.innerHTML = "✔";
+  setTimeout(() => {
+    button.innerHTML = originalHTML;
+  }, 700);
+}

@@ -1,159 +1,158 @@
 const express = require("express");
 const router = express.Router();
+
 const Order = require("../models/order");
+const Product = require("../models/product");
 const mailer = require("../config/email");
 const generateInvoice = require("../utils/invoiceGenerator");
 
+const customerAuth = require("../middleware/customerAuth");
+const adminAuth = require("../middleware/adminAuth"); // ✅ FIXED
 
-// Generate order reference
+// ================= HELPERS =================
 function generateReference() {
-  return "KB-" + Date.now().toString().slice(-6);
+  return `KB-${Date.now().toString().slice(-6)}`;
 }
 
-// CREATE ORDER (Checkout)
-router.post("/", async (req, res) => {
+// ================= CREATE ORDER (CUSTOMER) =================
+router.post("/", customerAuth, async (req, res) => {
   try {
-    const {
-      customerId,
-      customer,
-      items,
-      subtotal,
-      discount,
-      shipping,
-      total,
-      flashSale
-    } = req.body;
+    const customerId = req.customerId;
+    const { customer, items, discount = 0 } = req.body;
 
-    if (!customerId) {
-      return res.status(400).json({ message: "customerId is required" });
+    if (!customer || !Array.isArray(items) || !items.length) {
+      return res.status(400).json({ message: "Invalid order data" });
     }
 
-    if (!customer || !customer.name || !customer.email || !customer.phone || !customer.address) {
-      return res.status(400).json({ message: "Customer info is required" });
+    const SHIPPING_FEE = 150;
+    let subtotal = 0;
+    const finalItems = [];
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        return res.status(404).json({
+          message: `Product not found: ${item.productId}`,
+        });
+      }
+
+      if (product.stock < item.quantity) {
+        return res.status(400).json({
+          message: `Not enough stock for ${product.name}`,
+        });
+      }
+
+      product.stock -= item.quantity;
+      await product.save();
+
+      subtotal += product.price * item.quantity;
+
+      finalItems.push({
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        quantity: item.quantity,
+        image: product.image,
+      });
     }
 
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
+    const total = subtotal + SHIPPING_FEE - discount;
 
     const order = await Order.create({
       reference: generateReference(),
       customerId,
       customer,
-      items,
+      items: finalItems,
       subtotal,
       discount,
-      shipping,
+      shipping: SHIPPING_FEE,
       total,
-      flashSale
+      status: "Pending",
     });
 
     const invoicePath = generateInvoice(order);
 
-    mailer.sendMail({
+    await mailer.sendMail({
       to: customer.email,
-      subject: "Kickbarks Invoice & Order Confirmation",
+      subject: "Kickbarks Order Confirmation",
       html: `
-        <h2>Thank you for your order</h2>
-        <p><strong>Reference:</strong> ${order.reference}</p>
-        <p><strong>Total:</strong> ₱${order.total}</p>
-        <p>Your invoice is attached.</p>
+        <h3>Thank you for your order!</h3>
+        <p>Order Reference: <strong>${order.reference}</strong></p>
+        <p>Total Amount: <strong>₱${order.total.toFixed(2)}</strong></p>
       `,
       attachments: [
         {
           filename: `invoice-${order.reference}.pdf`,
-          path: invoicePath
-        }
-      ]
+          path: invoicePath,
+        },
+      ],
     });
 
     res.status(201).json(order);
-  } catch (error) {
-    console.error("ORDER CREATE ERROR:", error);
-    res.status(500).json({ message: "Failed to create order" });
-  }
-});
-
-
-// GET all orders (Admin)
-router.get("/", async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch orders" });
-  }
-});
-
-// ================= INVOICE =================
-router.get("/:id/invoice", async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    const filePath = generateInvoice(order);
-    res.download(filePath);
   } catch (err) {
-    res.status(500).json({ message: "Failed to generate invoice" });
+    console.error("Order creation error:", err);
+    res.status(500).json({ message: "Checkout failed" });
   }
 });
 
+// ================= CUSTOMER: MY ORDERS =================
+router.get("/my", customerAuth, async (req, res) => {
+  const orders = await Order.find({ customerId: req.customerId })
+    .sort({ createdAt: -1 });
 
-// UPDATE order status (Admin)
-router.put("/:id/status", async (req, res) => {
-  try {
-    const { status } = req.body;
-
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update order status" });
-  }
+  res.json(orders);
 });
 
-
-
-// DELETE order (Admin)
-router.delete("/:id", async (req, res) => {
-  try {
-    const order = await Order.findByIdAndDelete(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
-    res.json({ message: "Order deleted" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete order" });
-  }
+// ================= ADMIN: ALL ORDERS =================
+router.get("/", adminAuth, async (req, res) => {
+  const orders = await Order.find().sort({ createdAt: -1 });
+  res.json(orders);
 });
 
+// ================= CUSTOMER: CANCEL ORDER =================
+router.put("/:id/cancel", customerAuth, async (req, res) => {
+  const order = await Order.findById(req.params.id);
 
+  if (!order) return res.sendStatus(404);
+  if (order.customerId.toString() !== req.customerId) {
+    return res.sendStatus(403);
+  }
 
+  if (!["Pending", "Confirmed"].includes(order.status)) {
+    return res
+      .status(400)
+      .json({ message: "Order can no longer be cancelled" });
+  }
+
+  order.status = "Cancelled";
+  await order.save();
+
+  // 🔄 RESTOCK PRODUCTS
+  for (const item of order.items) {
+    await Product.findByIdAndUpdate(item.productId, {
+      $inc: { stock: item.quantity },
+    });
+  }
+
+  res.json({ message: "Order cancelled" });
+});
+
+// ================= ADMIN: REFUND ORDER =================
+router.put("/:id/refund", adminAuth, async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.sendStatus(404);
+
+  if (order.status === "Delivered") {
+    return res
+      .status(400)
+      .json({ message: "Delivered orders cannot be refunded automatically" });
+  }
+
+  order.status = "Refunded";
+  await order.save();
+
+  res.json({ message: "Order refunded" });
+});
 
 module.exports = router;
-
-router.get("/my", async (req, res) => {
-  try {
-    const { customerId } = req.query;
-
-    if (!customerId) {
-      return res.status(400).json({ message: "customerId is required" });
-    }
-
-    const orders = await Order.find({ customerId })
-      .sort({ createdAt: -1 });
-
-    res.json(orders);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch orders" });
-  }
-});

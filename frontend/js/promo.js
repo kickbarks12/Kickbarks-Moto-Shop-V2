@@ -1,41 +1,65 @@
-document.addEventListener("DOMContentLoaded", () => {
+// ================= INIT =================
+document.addEventListener("DOMContentLoaded", initUI);
 
-  // New arrival popup
-  if (!localStorage.getItem("newArrivalShown")) {
-    const modalEl = document.getElementById("newArrivalModal");
-if (modalEl) {
-  const modal = new bootstrap.Modal(modalEl);
-  modal.show();
+function initUI() {
+  showNewArrivalModal();
+  showFreeShippingToast();
+  bindSpinButton();
 }
 
-    localStorage.setItem("newArrivalShown", "true");
-  }
+// ================= NEW ARRIVAL MODAL =================
+function showNewArrivalModal() {
+  if (localStorage.getItem("newArrivalShown")) return;
 
-  // Free shipping toast
-  const toast = new bootstrap.Toast(
-    document.getElementById("shippingToast")
-  );
+  const modalEl = document.getElementById("newArrivalModal");
+  if (!modalEl) return;
+
+  new bootstrap.Modal(modalEl).show();
+  localStorage.setItem("newArrivalShown", "true");
+}
+
+// ================= FREE SHIPPING TOAST =================
+function showFreeShippingToast() {
+  const toastEl = document.getElementById("shippingToast");
+  if (!toastEl) return;
+
+  const toast = new bootstrap.Toast(toastEl);
   setTimeout(() => toast.show(), 2000);
-
-});
-
-// Close promo banner
-function closePromo() {
-  document.getElementById("promoBanner").style.display = "none";
 }
 
-// 🎡 Spin to Win
+// ================= PROMO BANNER =================
+function closePromo() {
+  const banner = document.getElementById("promoBanner");
+  if (banner) banner.style.display = "none";
+}
+
+// ================= SPIN TO WIN =================
 const prizes = [
   { label: "5% OFF", discount: 5 },
   { label: "10% OFF", discount: 10 },
   { label: "₱100 OFF", discount: 100 },
   { label: "FREE SHIPPING", freeShipping: true },
-  { label: "Try Again", nothing: true }
+  { label: "Try Again", nothing: true },
 ];
 
 let currentRotation = 0;
 
-document.getElementById("spinBtn").onclick = () => {
+// ================= SPIN BUTTON =================
+function bindSpinButton() {
+  const spinBtn = document.getElementById("spinBtn");
+  if (!spinBtn) return;
+
+  spinBtn.addEventListener("click", openSpinModal);
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("#wheel")) {
+      spinWheel();
+    }
+  });
+}
+
+// ================= OPEN / CLOSE MODAL =================
+function openSpinModal() {
   const lastSpin = localStorage.getItem("lastSpinDate");
   const today = new Date().toDateString();
 
@@ -44,38 +68,42 @@ document.getElementById("spinBtn").onclick = () => {
     return;
   }
 
-  document.getElementById("spinModal").classList.remove("d-none");
-};
-
-function closeSpin() {
-  document.getElementById("spinModal").classList.add("d-none");
+  const modal = document.getElementById("spinModal");
+  if (modal) modal.classList.remove("d-none");
 }
 
-document.addEventListener("click", e => {
-  if (e.target.closest("#wheel")) {
-    spinWheel();
-  }
-});
+function closeSpin() {
+  const modal = document.getElementById("spinModal");
+  if (modal) modal.classList.add("d-none");
+}
 
+// ================= SPIN LOGIC =================
 function spinWheel() {
   const wheel = document.getElementById("wheel");
   const resultEl = document.getElementById("spinResult");
 
-  const spin = Math.floor(Math.random() * prizes.length);
-  const deg = 360 * 5 + spin * 72;
+  if (!wheel || !resultEl) return;
 
-  wheel.style.transform = `rotate(${deg}deg)`;
+  const index = Math.floor(Math.random() * prizes.length);
+  const spinDegree = 360 * 5 + index * (360 / prizes.length);
+
+  currentRotation += spinDegree;
+  wheel.style.transform = `rotate(${currentRotation}deg)`;
 
   setTimeout(() => {
-    const prize = prizes[spin];
+    const prize = prizes[index];
     localStorage.setItem("lastSpinDate", new Date().toDateString());
-
-    if (prize.discount) {
-      resultEl.textContent = `🎉 You won ${prize.label}!`;
-    } else if (prize.freeShipping) {
-      resultEl.textContent = "🚚 You won FREE SHIPPING!";
-    } else {
-      resultEl.textContent = "😅 Try again next time!";
-    }
+    displaySpinResult(prize, resultEl);
   }, 2000);
+}
+
+// ================= RESULT =================
+function displaySpinResult(prize, resultEl) {
+  if (prize.discount) {
+    resultEl.textContent = `🎉 You won ${prize.label}!`;
+  } else if (prize.freeShipping) {
+    resultEl.textContent = "🚚 You won FREE SHIPPING!";
+  } else {
+    resultEl.textContent = "😅 Try again next time!";
+  }
 }

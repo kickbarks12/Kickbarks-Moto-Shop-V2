@@ -1,72 +1,71 @@
-require("dotenv").config();  
+// ================= ENV =================
+require("dotenv").config();
 
+// ================= CORE =================
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const multer = require("multer");
 
-const connectDB = require("./config/db");
-const productRoutes = require("./routes/productRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-
-
+// ================= APP =================
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB
+// ================= DATABASE =================
+const connectDB = require("./config/db");
 connectDB();
 
-// Debug: confirm DB name
 mongoose.connection.once("open", () => {
-  console.log("📦 Mongoose DB name:", mongoose.connection.name);
+  console.log("📦 Connected to MongoDB:", mongoose.connection.name);
 });
 
-// Middleware
+// ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
 
-const multer = require("multer");
+// ================= STATIC UPLOADS =================
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/uploads", express.static("uploads"));
-
+// ================= FILE UPLOAD (MULTER) =================
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
 const upload = multer({ storage });
 
 app.post("/api/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
   res.json({
-    imageUrl: `/uploads/${req.file.filename}`
+    imageUrl: `/uploads/${req.file.filename}`,
   });
 });
 
-
-// API routes
-// API routes
-app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
+// ================= ROUTES =================
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/reports", require("./routes/reportRoutes"));
-app.use("/api/promo", require("./routes/promoRoutes"));
 app.use("/api/customers", require("./routes/customerAuth"));
+app.use("/api/vouchers", require("./routes/voucherRoutes"));
+app.use("/api/promo", require("./routes/promoRoutes"));
+app.use("/api/reports", require("./routes/reportRoutes"));
 
-// Serve frontend static files (MUST BE LAST)
-app.use(express.static(path.join(__dirname, "../frontend")));
+// ================= FRONTEND =================
+// MUST be after API routes
+const frontendPath = path.join(__dirname, "../frontend");
+app.use(express.static(frontendPath));
 
-// Home route
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-// Start server
+// ================= SERVER =================
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-
-
-

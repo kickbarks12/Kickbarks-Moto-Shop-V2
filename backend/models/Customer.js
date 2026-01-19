@@ -1,28 +1,95 @@
 const mongoose = require("mongoose");
 
-const customerSchema = new mongoose.Schema({
-name: { type: String },
-birthday: { type: String },
+const customerSchema = new mongoose.Schema(
+  {
+    // 👤 Basic Info
+    name: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
+    birthday: {
+      type: Date,
+    },
 
-  email: { type: String, unique: true, required: true },
-  phone: { type: String, unique: true, required: true },
+    // 📧 Contact Info
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
 
-  password: { type: String, required: true },
+    phone: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
 
-  cart: [
-    {
-      productId: String,
-      name: String,
-      price: Number,
-      quantity: Number,
-      image: String
-    }
-  ],
+    // 🔐 Auth
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false, // hide password by default
+    },
 
-  vouchers: [String],
+    // 🛒 Cart Snapshot
+    cart: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        name: { type: String, required: true },
+        price: { type: Number, required: true, min: 0 },
+        quantity: { type: Number, required: true, min: 1 },
+        image: { type: String },
+      },
+    ],
 
-  createdAt: { type: Date, default: Date.now }
-});
+    // 🎟 Voucher Codes
+    vouchers: [
+      {
+        type: String,
+        uppercase: true,
+        trim: true,
+      },
+    ],
+
+    // 🏠 Address
+    address: {
+      type: String,
+      trim: true,
+    },
+
+    // 📌 Status
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    lastLoginAt: {
+      type: Date,
+    },
+  },
+  { timestamps: true }
+);
+
+// // ================= INDEXES =================
+// customerSchema.index({ email: 1 });
+// customerSchema.index({ phone: 1 });
+
+// ================= METHODS =================
+customerSchema.methods.clearCart = function () {
+  this.cart = [];
+  return this.save();
+};
 
 module.exports = mongoose.model("Customer", customerSchema);

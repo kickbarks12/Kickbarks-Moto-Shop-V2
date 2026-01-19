@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>Kickbarks Moto Shop</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -16,40 +15,40 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     />
 
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css" />
   </head>
 
   <body>
-    <div class="loader" id="loader">
+    <!-- ================= LOADER ================= -->
+    <div id="loader" class="loader">
       <div class="spinner"></div>
     </div>
 
     <div class="page">
+      <!-- ================= NAVBAR ================= -->
       <div id="navbar"></div>
 
-      <!-- PROMO BANNER -->
+      <!-- ================= PROMO BANNER ================= -->
       <div id="promoBanner" class="promo-banner">
         🎯 <strong>10% OFF</strong> on all motorcycle parts today!
-        <span onclick="closePromo()" class="promo-close">&times;</span>
+        <span class="promo-close" onclick="closePromo()">&times;</span>
       </div>
 
-      <!-- FREE SHIPPING TOAST -->
+      <!-- ================= FREE SHIPPING TOAST ================= -->
       <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="shippingToast" class="toast" data-bs-delay="6000">
           <div class="toast-body">🛵 Free shipping on orders over ₱2,000!</div>
         </div>
       </div>
 
+      <!-- ================= WELCOME MODAL ================= -->
       <div class="modal fade" id="welcomeModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header border-0">
               <h5 class="modal-title">👋 Welcome to Kickbarks Moto Shop</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
+              <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
               <p class="fs-5">
@@ -66,6 +65,7 @@
         </div>
       </div>
 
+      <!-- ================= HERO SECTION ================= -->
       <section class="py-5 bg-transparent">
         <div class="container">
           <div class="row align-items-center">
@@ -73,17 +73,14 @@
               <h1 class="fw-bold display-5">
                 Built for Riders Who Demand More
               </h1>
-
-              <div class="align-items-center">
-                <a href="./shop.html" class="btn btn-lg mt-3 shop-hero-btn">
-                  Shop Now
-                </a>
-              </div>
+              <a href="shop.html" class="btn btn-lg mt-3 shop-hero-btn">
+                Shop Now
+              </a>
             </div>
 
             <div class="col-md-6 text-center">
               <img
-                src="./images/Motorcycle v1.png"
+                src="images/Motorcycle v1.png"
                 class="img-fluid"
                 alt="Motorcycle"
               />
@@ -99,14 +96,16 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
               <h3 class="fw-bold m-0">⚡ Flash Sale</h3>
               <div class="flash-timer">
-                Ends in: <span id="flashHours">02</span>:
+                Ends in:
+                <span id="flashHours">02</span>:
                 <span id="flashMinutes">15</span>:
                 <span id="flashSeconds">45</span>
               </div>
             </div>
 
             <div class="row g-4">
-              <!-- Product 1 -->
+              <!-- FLASH PRODUCT CARD TEMPLATE -->
+              <!-- Repeat for each product -->
               <div class="col-6 col-md-3">
                 <div class="flash-card">
                   <span class="flash-badge">-30%</span>
@@ -126,7 +125,6 @@
                     >
                       <i class="bi bi-cart-plus"></i>
                     </button>
-
                     <button
                       class="btn btn-dark w-50 buy-flash-now"
                       data-id="fs1"
@@ -139,114 +137,13 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Product 2 -->
-              <div class="col-6 col-md-3">
-                <div class="flash-card">
-                  <span class="flash-badge">-25%</span>
-                  <img src="images/jvtcenterspring.png" class="img-fluid" />
-                  <h6>JVT Center Spring</h6>
-                  <div class="price">
-                    <span class="old">₱1,200</span>
-                    <span class="new">₱899</span>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button
-                      class="btn btn-outline-dark w-50 add-flash-cart"
-                      data-id="fs2"
-                      data-name="JVT Center Spring"
-                      data-price="899"
-                      data-image="images/jvtcenterspring.png"
-                    >
-                      <i class="bi bi-cart-plus"></i>
-                    </button>
-
-                    <button
-                      class="btn btn-dark w-50 buy-flash-now"
-                      data-id="fs2"
-                      data-name="JVT Center Spring"
-                      data-price="899"
-                      data-image="images/jvtcenterspring.png"
-                    >
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Product 3 -->
-              <div class="col-6 col-md-3">
-                <div class="flash-card">
-                  <span class="flash-badge">-20%</span>
-                  <img src="images/rcbbrakelever.png" class="img-fluid" />
-                  <h6>RCB Brake Lever</h6>
-                  <div class="price">
-                    <span class="old">₱1,500</span>
-                    <span class="new">₱1,200</span>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button
-                      class="btn btn-outline-dark w-50 add-flash-cart"
-                      data-id="fs3"
-                      data-name="RCB Brake Lever"
-                      data-price="1200"
-                      data-image="images/rcbbrakelever.png"
-                    >
-                      <i class="bi bi-cart-plus"></i>
-                    </button>
-
-                    <button
-                      class="btn btn-dark w-50 buy-flash-now"
-                      data-id="fs3"
-                      data-name="RCB Brake Lever"
-                      data-price="1200"
-                      data-image="images/rcbbrakelever.png"
-                    >
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Product 4 -->
-              <div class="col-6 col-md-3">
-                <div class="flash-card">
-                  <span class="flash-badge">-15%</span>
-                  <img src="images/rcbshock.png" class="img-fluid" />
-                  <h6>RSB Shock Absorber</h6>
-                  <div class="price">
-                    <span class="old">₱3,500</span>
-                    <span class="new">₱2,999</span>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button
-                      class="btn btn-outline-dark w-50 add-flash-cart"
-                      data-id="fs4"
-                      data-name="RS8 Shock Absorber"
-                      data-price="2999"
-                      data-image="images/rs8shock.png"
-                    >
-                      <i class="bi bi-cart-plus"></i>
-                    </button>
-
-                    <button
-                      class="btn btn-dark w-50 buy-flash-now"
-                      data-id="fs4"
-                      data-name="RS8 Shock Absorber"
-                      data-price="2999"
-                      data-image="images/rs8shock.png"
-                    >
-                      Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <!-- END PRODUCT -->
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ===== GLASS HERO CAROUSEL ===== -->
+      <!-- ================= GLASS CAROUSEL ================= -->
       <section class="py-5">
         <div class="container">
           <div class="glass-carousel-wrapper">
@@ -256,49 +153,38 @@
               data-bs-ride="carousel"
             >
               <div class="carousel-inner">
-                <!-- Slide 1 -->
                 <div class="carousel-item active">
                   <div class="glass-slide">
                     <div class="glass-text">
                       <h1>CWORKS Clutch Bell</h1>
-                      <h4>
-                        High performance clutch bell with groove for smoother
-                        and cooler rides.
-                      </h4>
+                      <h4>High performance clutch bell for cooler rides.</h4>
                     </div>
                     <div class="glass-image">
-                      <img src="images/cworksbell.png" alt="Cworks Clutch" />
+                      <img src="images/cworksbell.png" />
                     </div>
                   </div>
                 </div>
 
-                <!-- Slide 2 -->
                 <div class="carousel-item">
                   <div class="glass-slide">
                     <div class="glass-text">
                       <h1>JVT Center Spring</h1>
-                      <h4>
-                        Boost acceleration and torque with premium center
-                        springs.
-                      </h4>
+                      <h4>Boost acceleration and torque.</h4>
                     </div>
                     <div class="glass-image">
-                      <img src="images/jvtcenterspring.png" alt="JVT Spring" />
+                      <img src="images/jvtcenterspring.png" />
                     </div>
                   </div>
                 </div>
 
-                <!-- Slide 3 -->
                 <div class="carousel-item">
                   <div class="glass-slide">
                     <div class="glass-text">
                       <h1>RCB Brake Lever</h1>
-                      <h4>
-                        Premium CNC aluminum brake levers for style and safety.
-                      </h4>
+                      <h4>Premium CNC aluminum for safety and style.</h4>
                     </div>
                     <div class="glass-image">
-                      <img src="images/rcbbrakelever.png" alt="RCB Lever" />
+                      <img src="images/rcbbrakelever.png" />
                     </div>
                   </div>
                 </div>
@@ -308,41 +194,34 @@
         </div>
       </section>
 
-      <!-- BRANDS -->
+      <!-- ================= BRANDS ================= -->
       <section class="py-5">
         <div class="container brand-glass-wrapper">
           <div class="brand-glass">
             <h3 class="text-center fw-bold mb-4">Shop by Brand</h3>
-
             <div class="row g-4 text-center">
               <div class="col-6 col-md-3">
-                <a href="shop.html?brand=Yamaha" class="brand-card glass-brand">
-                  <img src="images/brands/cworkslogo.png" class="img-fluid" />
+                <a href="shop.html?brand=Cworks" class="brand-card glass-brand">
+                  <img src="images/brands/cworkslogo.png" />
                   <p>Cworks</p>
                 </a>
               </div>
-
               <div class="col-6 col-md-3">
-                <a href="shop.html?brand=Honda" class="brand-card glass-brand">
-                  <img src="images/brands/jvtlogo.png" class="img-fluid" />
+                <a href="shop.html?brand=JVT" class="brand-card glass-brand">
+                  <img src="images/brands/jvtlogo.png" />
                   <p>JVT</p>
                 </a>
               </div>
-
               <div class="col-6 col-md-3">
-                <a href="shop.html?brand=Suzuki" class="brand-card glass-brand">
-                  <img src="images/brands/rcb.png" class="img-fluid" />
+                <a href="shop.html?brand=RCB" class="brand-card glass-brand">
+                  <img src="images/brands/rcb.png" />
                   <p>RCB</p>
                 </a>
               </div>
-
               <div class="col-6 col-md-3">
-                <a
-                  href="shop.html?brand=Kawasaki"
-                  class="brand-card glass-brand"
-                >
-                  <img src="images/brands/rs8.png" class="img-fluid" />
-                  <p>RS8</p>
+                <a href="shop.html?brand=RCB" class="brand-card glass-brand">
+                  <img src="images/brands/rcb.png" />
+                  <p>RCB</p>
                 </a>
               </div>
             </div>
@@ -350,18 +229,18 @@
         </div>
       </section>
 
-      <!-- BRAND QUOTE -->
-      <section class="brand-quote-section py-5 bg-transparent">
-        <div class="container text-center">
+      <!-- ================= BRAND QUOTE ================= -->
+      <section class="brand-quote-section py-5 text-center">
+        <div class="container">
           <p class="brand-quote">
-            “When you upgrade and maintain your motorcycle to look its best,
-            every ride becomes your best ride.”
+            “When you upgrade and maintain your motorcycle, every ride becomes
+            your best ride.”
           </p>
           <span class="brand-quote-author">— Kickbarks Moto Shop</span>
         </div>
       </section>
 
-      <!-- 🎡 Spin Wheel Modal -->
+      <!-- ================= SPIN TO WIN ================= -->
       <div id="spinModal" class="spin-modal d-none">
         <div class="spin-box">
           <h4 class="text-center mb-3">🎉 Spin to Win!</h4>
@@ -378,44 +257,41 @@
           </div>
 
           <p id="spinResult" class="text-center mt-3 fw-bold"></p>
-
           <button class="btn btn-dark w-100 mt-3" onclick="closeSpin()">
             Close
           </button>
         </div>
       </div>
 
-      <!-- 🎡 Spin to Win Button -->
       <div id="spinBtn" class="spin-btn">🎡 Spin & Win</div>
 
+      <!-- ================= FOOTER ================= -->
       <div id="footer"></div>
-
-      <!-- Bootstrap JS -->
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-      <script src="js/layout.js"></script>
-      <script src="js/page-transition.js"></script>
-      <script src="js/promo.js"></script>
-      <script src="js/flash-sale.js"></script>
-
-      <script>
-        window.addEventListener("load", () => {
-          document.getElementById("loader").classList.add("hidden");
-        });
-      </script>
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-          const lastSeen = localStorage.getItem("visitedKickbarks");
-          const today = new Date().toDateString();
-
-          if (lastSeen !== today) {
-            const modal = new bootstrap.Modal(
-              document.getElementById("welcomeModal"),
-            );
-            modal.show();
-            localStorage.setItem("visitedKickbarks", today);
-          }
-        });
-      </script>
     </div>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/page-transition.js"></script>
+    <script src="js/promo.js"></script>
+    <script src="js/flash-sale.js"></script>
+    <script src="js/voucher.js"></script>
+    
+
+    <script>
+      window.addEventListener("load", () => {
+        document.getElementById("loader").classList.add("hidden");
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date().toDateString();
+        const visited = localStorage.getItem("visitedKickbarks");
+
+        if (visited !== today) {
+          new bootstrap.Modal(document.getElementById("welcomeModal")).show();
+          localStorage.setItem("visitedKickbarks", today);
+        }
+      });
+    </script>
   </body>
 </html>

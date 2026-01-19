@@ -1,6 +1,10 @@
 const express = require("express");
-const router = express.Router();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Customer = require("../models/Customer");
+const customerAuth = require("../middleware/customerAuth");
+
+const router = express.Router();
 
 /* ================= SIGNUP ================= */
 router.post("/signup", async (req, res) => {
@@ -8,11 +12,11 @@ router.post("/signup", async (req, res) => {
     const { name, birthday, email, phone, password } = req.body;
 
     if (!email || !phone || !password) {
-      return res.status(400).json({ message: "Email, phone and password are required" });
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     const exists = await Customer.findOne({
-      $or: [{ email }, { phone }]
+      $or: [{ email }, { phone }],
     });
 
     if (exists) {
@@ -20,18 +24,16 @@ router.post("/signup", async (req, res) => {
     }
 
     await Customer.create({
-  name: name.trim(),
-  birthday,
-  email,
-  phone,
-  password,
-  vouchers: ["WELCOME10"]
-});
+      name,
+      birthday,
+      email,
+      phone,
+      password, // bcrypt auto-hashes
+      vouchers: ["WELCOME10"],
+    });
 
-
-    res.json({ message: "Account created" });
+    res.status(201).json({ message: "Account created" });
   } catch (err) {
-    console.error("Signup error:", err);
     res.status(500).json({ message: "Signup failed" });
   }
 });
@@ -43,43 +45,56 @@ router.post("/login", async (req, res) => {
 
     const customer = await Customer.findOne({
       $or: [{ email: emailOrPhone }, { phone: emailOrPhone }],
-      password
-    }).lean();
+    }).select("+password");
 
     if (!customer) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    res.json(customer);
+    const valid = await bcrypt.compare(password, customer.password);
+    if (!valid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: customer._id },
+      process.env.CUSTOMER_JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    customer.password = undefined;
+
+    res.json({
+      token,
+      customer,
+    });
   } catch (err) {
     res.status(500).json({ message: "Login failed" });
   }
 });
 
-/* ================= SAVE CART ================= */
-router.post("/cart", async (req, res) => {
-  const { customerId, cart } = req.body;
-  await Customer.findByIdAndUpdate(customerId, { cart });
+/* ================= SAVE CART (PROTECTED) ================= */
+router.post("/cart", customerAuth, async (req, res) => {
+  const { cart } = req.body;
+
+  await Customer.findByIdAndUpdate(req.customerId, { cart });
+
   res.json({ ok: true });
 });
 
-
-// Update profile
-router.put("/profile/:id", async (req, res) => {
-  try {
-    const { name, birthday, phone } = req.body;
-
-    const customer = await Customer.findByIdAndUpdate(
-      req.params.id,
-      { name, birthday, phone },
-      { new: true }
-    );
-
-    res.json(customer);
-  } catch {
-    res.status(500).json({ message: "Update failed" });
+/* ================= UPDATE PROFILE (PROTECTED) ================= */
+router.put("/profile/:id", customerAuth, async (req, res) => {
+  if (req.customerId !== req.params.id) {
+    return res.sendStatus(403);
   }
-});
 
+  const updatedCustomer = await Customer.findByIdAndUpdate(
+    req.customerId,
+    req.body,
+    { new: true }
+  );
+
+  res.json(updatedCustomer);
+});
 
 module.exports = router;

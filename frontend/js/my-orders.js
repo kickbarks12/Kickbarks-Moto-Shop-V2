@@ -1,106 +1,151 @@
-const customer = JSON.parse(localStorage.getItem("customer"));
+// ================= AUTH CHECK =================
+const customer = getStoredCustomer();
 
 if (!customer) {
-  alert("Please login to view your orders");
+  alert("Please login to view your orders.");
   window.location.href = "login.html";
 }
 
-function getStatusColor(status) {
-  if (status === "Pending") return "bg-warning text-dark";
-  if (status === "Confirmed") return "bg-info";
-  if (status === "Packed") return "bg-primary";
-  if (status === "Shipped") return "bg-orange";
-  if (status === "Delivered") return "bg-success";
-  return "bg-secondary";
-}
-
-function loadOrders() {
-  fetch("/api/orders/my?customerId=" + customer._id)
-  .then(res => {
-    if (!res.ok) {
-      if (res.status === 401) {
-        alert("Session expired. Please login again.");
-        localStorage.removeItem("customer");
-        window.location.href = "login.html";
-        return;
-      }
-      throw new Error("Failed to load orders");
-    }
-    return res.json();
-  })
-  .then(orders => {
-    const list = document.getElementById("ordersList");
-    list.innerHTML = "";
-
-  // fetch("/api/orders/my?customerId=" + customer._id)
-
-  //   .then(res => res.json())
-  //   .then(orders => {
-  //     const list = document.getElementById("ordersList");
-  //     list.innerHTML = "";
-
-      if (!orders.length) {
-        list.innerHTML = "<p class='text-dark'>No orders yet.</p>";
-        return;
-      }
-
-      orders.forEach(o => {
-        const div = document.createElement("div");
-        div.className = "card mb-4 shadow";
-
-        const itemsHTML = o.items.map(item => `
-          <div class="d-flex justify-content-between border-bottom py-1">
-            <span>${item.name} × ${item.quantity}</span>
-            <span>₱${(item.price * item.quantity).toFixed(2)}</span>
-          </div>
-        `).join("");
-
-        div.innerHTML = `
-          <div class="card-body text-dark">
-
-            <div class="d-flex justify-content-between mb-2">
-              <strong>Order: ${o.reference}</strong>
-              <span class="badge ${getStatusColor(o.status)}">${o.status}</span>
-            </div>
-
-            <div class="mb-3">
-              ${itemsHTML}
-            </div>
-
-            <div class="d-flex justify-content-between fw-bold border-top pt-2">
-              <span>Total</span>
-              <span>₱${o.total.toFixed(2)}</span>
-            </div>
-
-            <small class="text-muted d-block mt-2">
-              ${new Date(o.createdAt).toLocaleString()}
-            </small>
-
-            <a class="btn btn-outline-dark btn-sm mt-3"
-               href="/api/orders/${o._id}/invoice"
-               target="_blank">
-              Download Invoice
-            </a>
-
-          </div>
-        `;
-
-        list.appendChild(div);
-      });
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Failed to load orders");
-    });
-}
-
-// Load immediately
+// ================= INIT =================
 loadOrders();
-
-// Auto-refresh every 15 seconds
-const ordersInterval = setInterval(loadOrders, 15000);
+const refreshInterval = setInterval(loadOrders, 15000);
 
 window.addEventListener("beforeunload", () => {
-  clearInterval(ordersInterval);
+  clearInterval(refreshInterval);
 });
 
+// ================= LOAD ORDERS =================
+function loadOrders() {
+  authFetch(`/api/orders/my?customerId=${customer._id}`)
+    .then(handleResponse)
+    .then(renderOrders)
+    .catch(handleLoadError);
+}
+
+// ================= RESPONSE HANDLER =================
+function handleResponse(res) {
+  if (!res.ok) {
+    if (res.status === 401) {
+      alert("Session expired. Please login again.");
+      localStorage.removeItem("customer");
+      window.location.href = "login.html";
+    }
+    throw new Error("Failed to load orders");
+  }
+  return res.json();
+}
+
+// ================= RENDER ORDERS =================
+function renderOrders(orders) {
+  const list = document.getElementById("ordersList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!Array.isArray(orders) || orders.length === 0) {
+    list.innerHTML = `<p class="text-muted">No orders yet.</p>`;
+    return;
+  }
+
+  orders.forEach((order) => {
+    list.appendChild(createOrderCard(order));
+  });
+}
+
+// ================= ORDER CARD =================
+function createOrderCard(order) {
+  const card = document.createElement("div");
+  card.className = "card mb-4 shadow";
+
+  const itemsHTML = order.items
+    .map(
+      (item) => `
+        <div class="d-flex justify-content-between border-bottom py-1">
+          <span>${item.name} × ${item.quantity}</span>
+          <span>₱${(item.price * item.quantity).toFixed(2)}</span>
+        </div>
+      `
+    )
+    .join("");
+
+  div.innerHTML = `
+  <div class="card-body text-dark">
+
+    <div class="d-flex justify-content-between mb-2">
+      <strong>Order: ${o.reference}</strong>
+      <span class="badge ${getStatusColor(o.status)}">${o.status}</span>
+    </div>
+
+    <div class="mb-3">
+      ${itemsHTML}
+    </div>
+
+    <div class="d-flex justify-content-between fw-bold border-top pt-2">
+      <span>Total</span>
+      <span>₱${o.total.toFixed(2)}</span>
+    </div>
+
+    ${
+      ["Pending", "Confirmed"].includes(o.status)
+        ? `<button class="btn btn-outline-danger btn-sm mt-3 cancel-order">
+             Cancel Order
+           </button>`
+        : ""
+    }
+
+  </div>
+`;
+const cancelBtn = div.querySelector(".cancel-order");
+
+if (cancelBtn) {
+  cancelBtn.addEventListener("click", async () => {
+    if (!confirm("Cancel this order?")) return;
+
+    try {
+      await authFetch(`/api/orders/${o._id}/cancel`, {
+        method: "PUT",
+      });
+
+      alert("Order cancelled");
+      loadOrders();
+    } catch {
+      alert("Unable to cancel order");
+    }
+  });
+}
+
+
+  return card;
+}
+
+// ================= STATUS COLOR =================
+function getStatusClass(status) {
+  const statusMap = {
+    Pending: "bg-warning text-dark",
+    Confirmed: "bg-info",
+    Packed: "bg-primary",
+    Shipped: "bg-orange",
+    Delivered: "bg-success",
+  };
+
+  return statusMap[status] || "bg-secondary";
+}
+
+// ================= HELPERS =================
+function formatDate(date) {
+  return new Date(date).toLocaleString();
+}
+
+function getStoredCustomer() {
+  try {
+    return JSON.parse(localStorage.getItem("customer"));
+  } catch {
+    return null;
+  }
+}
+
+// ================= ERROR HANDLER =================
+function handleLoadError(err) {
+  console.error("Order load error:", err);
+  alert("Failed to load orders. Please try again.");
+}
