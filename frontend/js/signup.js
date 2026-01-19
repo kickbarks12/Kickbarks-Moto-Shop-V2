@@ -1,56 +1,37 @@
-// ================= SIGNUP FORM HANDLER =================
 const signupForm = document.getElementById("signupForm");
 
-if (signupForm) {
-  signupForm.addEventListener("submit", handleSignup);
-}
+signupForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-// ================= HANDLE SIGNUP =================
-function handleSignup(event) {
-  event.preventDefault();
+  const payload = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    password: document.getElementById("password").value.trim(),
+  };
 
-  const name = getValue("name");
-  const email = getValue("email");
-  const phone = getValue("phone");
-  const password = getValue("password");
-
-  if (!name || !email || !phone || !password) {
-    alert("All fields are required.");
+  if (!payload.name || !payload.email || !payload.phone || !payload.password) {
+    alert("All fields are required");
     return;
   }
 
-  registerCustomer({ name, email, phone, password });
-}
-
-// ================= REGISTER REQUEST =================
-function registerCustomer(payload) {
-  fetch("/api/customers/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Signup failed");
-      return res.json();
-    })
-    .then(handleSignupResponse)
-    .catch(() => {
-      alert("Signup failed. Please try again.");
+  try {
+    const res = await fetch("/api/customers/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
-}
 
-// ================= RESPONSE HANDLER =================
-function handleSignupResponse(data) {
-  if (data.message) {
-    alert(data.message);
-    return;
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Signup failed");
+      return;
+    }
+
+    alert("Account created successfully");
+    window.location.href = "login.html";
+  } catch (err) {
+    alert("Server error");
   }
-
-  alert("Account created successfully. Please log in.");
-  window.location.href = "login.html";
-}
-
-// ================= HELPERS =================
-function getValue(id) {
-  return document.getElementById(id)?.value.trim() || "";
-}
+});
