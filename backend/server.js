@@ -1,6 +1,8 @@
 // ================= ENV =================
 require("dotenv").config();
 
+console.log("🔥 THIS SERVER FILE IS RUNNING");
+
 // ================= CORE =================
 const express = require("express");
 const path = require("path");
